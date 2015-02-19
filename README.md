@@ -1,14 +1,12 @@
 # Dev Status
 VERY Experimental for my personal use.
 
-# STDIN => transform => STDOUT
+# buffer > STDIN > transformer > STDOUT > buffer
 
 Thats' filter command.
 Filter command in other word => transformer.
 
-you can write transformer whichever language you want.  
-
-Using vim's `!` command you can transform selected area by that transformer.  
+You can write transformer whichever language you want.  
 This have great possibility to reduce typing!  
 
 ![Movie](https://raw.githubusercontent.com/t9md/t9md/772e1fe5287a29c01b3bb2418f757aa29785a4f8/img/transform.gif)
@@ -20,6 +18,12 @@ nmap <D-R> <Plug>(transform)
 xmap <D-R> <Plug>(transform)
 ```
 
+# Ideally
+don't want to editor independent.
+
+# Need to consider
+* Making excutable each transformer eliminate consideration by which programming ranguage transformer is written.
+* determine appropreate run command like 'ruby', 'python', 'go run' from extention of each transfomer?
 
 # TODO?
 * choose appropriate set of transformer from `&filetype`
