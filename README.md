@@ -1,7 +1,7 @@
 # Dev Status
 VERY Experimental for my personal use.
 
-# buffer > STDIN > transformer > STDOUT > buffer
+# buffer > STDIN > transform > STDOUT > buffer
 
 Thats' filter command.
 Filter command in other word => transformer.
