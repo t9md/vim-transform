@@ -21,6 +21,5 @@ func main() {
 	a := []string{
 		a b c d e
 	}
-
 }
 

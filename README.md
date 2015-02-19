@@ -10,7 +10,7 @@ You can transform shorthand syntax within buffer on the fly.
 You can write transformer whichever language you want.  
 This have great possibility to reduce typing!  
 
-![Movie](https://raw.githubusercontent.com/t9md/t9md/772e1fe5287a29c01b3bb2418f757aa29785a4f8/img/transform.gif)
+![Movie](https://raw.githubusercontent.com/t9md/t9md/019b944b5b1152dbb97b92471b7ec596769c8319/img/transform.gif)
 
 # Config in vimrc
 
