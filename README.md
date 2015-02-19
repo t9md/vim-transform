@@ -105,12 +105,12 @@ don't want to editor independent.
 # Done
 * Making excutable each transformer eliminate consideration by which programming ranguage transformer is written.
 * determine appropreate run command like 'ruby', 'python', 'go run' from extention of each transfomer?
+* choose appropriate set of transformer from `&filetype` => associated configurable function is called based on &ft.
+* laod user's transformer => if transformer' path is begin with '/', use as absolulte path.
+* `:'<,'>!` is always linewise, you can't transform partial area within single line. => now returning empty string '' is responsible on transformer and sometime, err msg is userful??
 
 # TODO?
-* choose appropriate set of transformer from `&filetype`
-* laod user's transformer
-* `:'<,'>!` is always linewise, you can't transform partial area within single line.
-* Even if transformer raise error, buffer is replaced with that error msg.
+* good default config and tranformer set
 * template engine like erb is better in most case?
 * Whats' defference in advanced snipett plugin?(maybe this is way simple).
 * Make multiple tranformer chainable so that we can  stringfy then surround by `import(` and `)`.
