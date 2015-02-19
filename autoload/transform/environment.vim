@@ -2,11 +2,13 @@ let s:dir_base = expand("<sfile>:p:h")
 
 let s:Env = {}
 function! s:Env.new(line_s, line_e, mode) "{{{1
-  let self.mode = a:mode
-  let self.path = self.set_path()
-  let self.buffer = self.set_buffer(a:line_s, a:line_e)
-  let self.content = self.set_content()
-  return self
+  let e = {
+        \ "mode":    a:mode,
+        \ "path":    self.set_path(),
+        \ "buffer":  self.set_buffer(a:line_s, a:line_e),
+        \ "content": self.set_content(a:line_s, a:line_e),
+        \ }
+  return extend(e, self)
 endfunction
 
 function! s:Env.set_path() "{{{1
@@ -17,14 +19,17 @@ function! s:Env.set_path() "{{{1
   return R
 endfunction
 
-function! s:Env.set_content() "{{{1
-  let content = getline(self.buffer.line_s, self.buffer.line_e)
+function! s:Env.set_content(line_s, line_e) "{{{1
+  let content = getline(a:line_s, a:line_e)
+  if !len(content) || len(content) ==# 1 && empty(content[0])
+    throw 'NO_CONTENT'
+  endif
   let R = {
-        \ "all": content,
-        \ "first-1": getline(self.buffer['line_s-1']),
-        \ "first": content[0],
-        \ "last": content[-1],
-        \ "last+1": getline(self.buffer['line_e+1']),
+        \ "all":      content,
+        \ "line_s-1": getline(a:line_s - 1),
+        \ "line_s":   content[0],
+        \ "line_e":   content[-1],
+        \ "line_e+1": getline(a:line_e + 1),
         \ }
   return R
 endfunction
@@ -32,9 +37,9 @@ endfunction
 function! s:Env.set_buffer(line_s, line_e) "{{{1
   let R = {
         \ "filetype": &filetype,
-        \ "bufnr": bufnr(''),
-        \ "line_s": a:line_s,
-        \ "line_e": a:line_e,
+        \ "bufnr":    bufnr(''),
+        \ "line_s":   a:line_s,
+        \ "line_e":   a:line_e,
         \ "line_s-1": a:line_s - 1,
         \ "line_e+1": a:line_e + 1,
         \ }

@@ -17,10 +17,6 @@ input.each do |l|
       end
     end
     r << e
-    %!"#{e}"!
   end
 end
-r = r.map do |e|
-  %!\t"#{e}"!
-end.join("\n").chomp
-puts r
+puts r.map { |e| %!\t"#{e}"! }.join("\n").chomp

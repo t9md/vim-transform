@@ -19,6 +19,7 @@ command! -range -bar -nargs=* Transform call transform#start(<line1>, <line2>, <
 " KeyMap:
 nnoremap <Plug>(transform) :Transform n<CR>
 xnoremap <Plug>(transform) :Transform v<CR>
+inoremap <Plug>(transform) <C-o>:Transform n<CR>
 
 " Finish:
 let &cpo = s:old_cpo

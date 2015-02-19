@@ -35,9 +35,9 @@ endfunction
 function! g:transform.go(e)
   let c = a:e.content
   let f = ''
-  if c.first =~# '\v^const\s*\('
+  if c.line_s =~# '\v^const\s*\('
     let f = "go/const_stringfy.rb"
-  elseif c['first-1'] =~# '\v^import\s*\('
+  elseif c['line_s-1'] =~# '\v^import\s*\('
     let f = "go/import.rb"
   endif
   return f
@@ -75,11 +75,11 @@ example output of `environment`
       '',
       'function! g:transform._(e)'
     ],
-    'first':
+    'line_s':
       'echo PP(transform#environment#new(1, 5, ''n''))',
-    'first-1': '',
-    'last': 'function! g:transform._(e)',
-    'last+1': '  return "_" . "/stringfy_word.rb"'
+    'line_s-1': '',
+    'line_e': 'function! g:transform._(e)',
+    'line_e+1': '  return "_" . "/stringfy_word.rb"'
   },
   'mode': 'n',
   'new': function('413'),
@@ -96,7 +96,7 @@ example output of `environment`
 ```
 
 # Ideally
-don't want to editor independent.
+Keep transformer script itself independent from editor, mean sharable between several editors.
 
 # Need to consider
 * command line arguments(or parameters) to transformer?
@@ -106,10 +106,10 @@ don't want to editor independent.
 * Making excutable each transformer eliminate consideration by which programming ranguage transformer is written.
 * determine appropreate run command like 'ruby', 'python', 'go run' from extention of each transfomer?
 * choose appropriate set of transformer from `&filetype` => associated configurable function is called based on &ft.
-* laod user's transformer => if transformer' path is begin with '/', use as absolulte path.
-* `:'<,'>!` is always linewise, you can't transform partial area within single line. => now returning empty string '' is responsible on transformer and sometime, err msg is userful??
+* load user's transformer => if transformer' path is begin with '/', use as absolulte path.
 
 # TODO?
+* `:'<,'>!` is always linewise, you can't transform partial area within single line.
 * good default config and tranformer set
 * template engine like erb is better in most case?
 * Whats' defference in advanced snipett plugin?(maybe this is way simple).

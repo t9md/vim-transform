@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 def parse(s)
-  enums = []
   type = ""
+  enums = []
   s.split("\n").each do |e|
     next if e =~ /\(|\)/
     n = e.split
@@ -34,18 +34,11 @@ func (#{v} #{type}) String() string {
 end
 
 # "const (\n\tRunning State = iota\n\tStopped\n\tRebooting\n\tTerminated\n)"
-s = "const (
-	Running State = iota
-	Stopped
-	Rebooting
-	Terminated
-)"
 
 input = STDIN.read
 if input =~ /\s*const/
   puts transform(input)
 end
-
 __END__
 
 ## Original
