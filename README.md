@@ -3,10 +3,10 @@ VERY Experimental for my personal use.
 
 # STDIN > transform > STDOUT
 
-Thats' filter command.
-Filter command in other word => transformer.
-You can transform shorthand syntax within buffer on the fly.
-
+Thats' filter command.  
+Filter command in other word => transformer.  
+You can transform shorthand syntax within buffer on the fly.  
+  
 You can write transformer whichever language you want.  
 This have great possibility to reduce typing!  
 
