@@ -1,7 +1,7 @@
 # Dev Status
 VERY Experimental for my personal use.
 
-# buffer > STDIN > transform > STDOUT > buffer
+# STDIN > transform > STDOUT
 
 Thats' filter command.
 Filter command in other word => transformer.
@@ -11,6 +11,12 @@ You can write transformer whichever language you want.
 This have great possibility to reduce typing!  
 
 ![Movie](https://raw.githubusercontent.com/t9md/t9md/019b944b5b1152dbb97b92471b7ec596769c8319/img/transform.gif)
+
+## How it works
+
+1. select area or simply post cursor where you want to transform.
+2. buffer are piped to `STDIN` of transformer and read result from `STDOUT` of transformer
+3. replace buffer with result.
 
 # Config in vimrc
 
@@ -23,10 +29,12 @@ xmap <D-R> <Plug>(transform)
 don't want to editor independent.
 
 # Need to consider
-* Making excutable each transformer eliminate consideration by which programming ranguage transformer is written.
-* determine appropreate run command like 'ruby', 'python', 'go run' from extention of each transfomer?
 * command line arguments(or parameters) to transformer?
 * Unite transformer
+
+# Done
+* Making excutable each transformer eliminate consideration by which programming ranguage transformer is written.
+* determine appropreate run command like 'ruby', 'python', 'go run' from extention of each transfomer?
 
 # TODO?
 * choose appropriate set of transformer from `&filetype`
