@@ -57,6 +57,7 @@ function! s:T.determine_transformer() "{{{1
       break
     endif
   endfor
+
   if empty(R)
     throw 'CANT_DETERMINE_TRANSFORMER'
   endif
@@ -69,11 +70,9 @@ endfunction
 
 function! s:T.start(startline, endline, mode) "{{{1
   try
-    let env = transform#environment#new(a:startline, a:endline, a:mode)
-    let self.env = env
-    let content = env.content
+    let self.env = transform#environment#new(a:startline, a:endline, a:mode)
     let transformer = self.determine_transformer()
-    let content.res = self.transform(transformer)
+    let self.env.content.res = self.transform(transformer)
     call self.finish()
   catch
     call s:message(v:exception)
