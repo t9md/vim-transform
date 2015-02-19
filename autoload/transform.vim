@@ -10,11 +10,11 @@ let s:lang2cmd = {
 " Default config
 let s:default_conf = {}
 
-function! s:default_conf._(e)
+function! s:default_conf._(e) "{{{1
   return "_" . "/stringfy_word.rb"
 endfunction
 
-function! s:default_conf.go(e)
+function! s:default_conf.go(e) "{{{1
   let c = a:e.content
   let f = ''
   if c.line_s =~# '\v^const\s*\(' && c.line_e =~# '\v\)\s*'
@@ -112,7 +112,6 @@ function! s:T.transform(tf) "{{{1
 endfunction
 
 " Public API
-" -----------------------------------------
 function! transform#start(...) "{{{1
   call call(s:T.start, a:000, s:T)
 endfunction
