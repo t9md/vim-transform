@@ -24,6 +24,7 @@ function! s:T.start(startline, endline, mode)
     let f = "go/import.rb"
   else
     let f = "_/stringfy_word.rb"
+    " let f = "_/date_time.py"
   endif
 
   let output = self.run_filter(f)
