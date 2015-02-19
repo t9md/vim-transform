@@ -5,6 +5,7 @@ VERY Experimental for my personal use.
 
 Thats' filter command.
 Filter command in other word => transformer.
+You can transform shorthand syntax within buffer on the fly.
 
 You can write transformer whichever language you want.  
 This have great possibility to reduce typing!  
@@ -24,6 +25,8 @@ don't want to editor independent.
 # Need to consider
 * Making excutable each transformer eliminate consideration by which programming ranguage transformer is written.
 * determine appropreate run command like 'ruby', 'python', 'go run' from extention of each transfomer?
+* command line arguments(or parameters) to transformer?
+* Unite transformer
 
 # TODO?
 * choose appropriate set of transformer from `&filetype`
