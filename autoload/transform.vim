@@ -1,6 +1,3 @@
-let s:T = {}
-let s:dir_root = expand("<sfile>:p:h")
-
 let s:lang2cmd = {
       \ "rb": "ruby",
       \ "py": "python",
@@ -9,7 +6,8 @@ let s:lang2cmd = {
       \ "go": "go run",
       \ }
 
-function! s:T.start(startline, endline, mode)
+let s:T = {}
+function! s:T.start(startline, endline, mode) "{{{1
   let env = transform#environment#new(a:startline, a:endline, a:mode)
   let self.env = env
   let content = env.content
@@ -27,7 +25,7 @@ function! s:T.start(startline, endline, mode)
     " let f = "_/date_time.py"
   endif
 
-  let output = self.run_filter(f)
+  let output = self.transform(f)
   if empty(output)
     return
   endif
@@ -40,14 +38,32 @@ function! s:T.start(startline, endline, mode)
   call append(a:startline-1, split(output, "\n"))
 endfunction
 
-function! s:T.run_filter(filter)
-  let ext = fnamemodify(a:filter, ":t:e")
-  let run_command = s:lang2cmd[ext]
-  let output = ""
-  let filter = join([self.env.path.dir_transformer, a:filter], "/")
-  return system( run_command . ' ' . filter , join(self.env.content.all, "\n"))
+function! s:T.find_transformer(transformer) "{{{1
+  return join([self.env.path.dir_transformer, a:transformer], "/")
+endfunction
+
+function! s:T.get_cmd(ft) "{{{1
+  let ext = fnamemodify(a:ft, ":t:e")
+  let rc = get(s:lang2cmd, ext, '')
+  let tf_path = self.find_transformer(a:ft)
+  let cmd =
+        \ executable(tf_path) ? tf_path :
+        \ !empty(rc) && executable(rc) ? rc . ' ' . tf_path :
+        \ ''
+  return cmd
+endfunction
+
+function! s:T.transform(tf) "{{{1
+  let cmd = self.get_cmd(a:tf)
+  if empty(cmd)
+    return ''
+  endif
+  let input = join(self.env.content.all, "\n")
+  return system(cmd, input)
 endfunction
 
 function! transform#start(...) "{{{1
   call call(s:T.start, a:000, s:T)
 endfunction
+" }}}
+" vim: foldmethod=marker

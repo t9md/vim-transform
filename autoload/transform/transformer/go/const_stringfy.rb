@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 def parse(s)
   enums = []
   type = ""

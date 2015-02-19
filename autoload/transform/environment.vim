@@ -10,10 +10,9 @@ function! s:Env.new(line_s, line_e, mode) "{{{1
 endfunction
 
 function! s:Env.set_path() "{{{1
-  let dir_transformer = join([s:dir_base, "transformer"], "/")
   let R = {
         \ "dir_base": s:dir_base,
-        \ "dir_transformer": dir_transformer,
+        \ "dir_transformer": join([s:dir_base, "transformer"], "/"),
         \ }
   return R
 endfunction
@@ -45,4 +44,5 @@ endfunction
 function! transform#environment#new(...) "{{{1
   return call(s:Env.new, a:000, s:Env)
 endfunction
-" vim: set sw=2 sts=2 et fdm=marker:
+" }}}
+" vim: foldmethod=marker
