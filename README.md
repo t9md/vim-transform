@@ -24,6 +24,76 @@ This have great possibility to reduce typing!
 nmap <D-R> <Plug>(transform)
 xmap <D-R> <Plug>(transform)
 ```
+## Customize
+
+```vim
+let g:transform = {}
+function! g:transform._(e)
+  return "_" . "/stringfy_word.rb"
+endfunction
+
+function! g:transform.go(e)
+  let c = a:e.content
+  let f = ''
+  if c.first =~# '\v^const\s*\('
+    let f = "go/const_stringfy.rb"
+  elseif c['first-1'] =~# '\v^import\s*\('
+    let f = "go/import.rb"
+  endif
+  return f
+endfunction
+```
+
+## What is the `e` argument passed to `g:transform[&ft](e)` function?
+
+This is environment vim-transform use.
+You can see its value by
+
+```vim
+" requre vim-prettyprint to use PP()
+" 1 = line_start, 10 = line_end, n = normal mode(use v for visual)
+:echo PP(transform#environment#new(1, 10, 'n'))
+```
+
+example output of `environment`
+
+```vim
+{
+  'buffer': {
+    'bufnr': 53,
+    'filetype': 'vim',
+    'line_e': 5,
+    'line_e+1': 6,
+    'line_s': 1,
+    'line_s-1': 0
+  },
+  'content': {
+    'all': [
+      'echo PP(transform#environment#new(1, 5, ''n''))',
+      'finish',
+      'let g:transform = {}',
+      '',
+      'function! g:transform._(e)'
+    ],
+    'first':
+      'echo PP(transform#environment#new(1, 5, ''n''))',
+    'first-1': '',
+    'last': 'function! g:transform._(e)',
+    'last+1': '  return "_" . "/stringfy_word.rb"'
+  },
+  'mode': 'n',
+  'new': function('413'),
+  'path': {
+    'dir_base':
+      '/Users/t9md/.vim/bundle/vim-transform/autoload/transform',
+    'dir_transformer':
+      '/Users/t9md/.vim/bundle/vim-transform/autoload/transform/transformer'
+  },
+  'set_buffer': function('416'),
+  'set_content': function('415'),
+  'set_path': function('414')
+}
+```
 
 # Ideally
 don't want to editor independent.
