@@ -15,7 +15,6 @@ const (
 	Rebooting
 )
 
-
 // main
 func main() {
 	// tedious array/slice literal
