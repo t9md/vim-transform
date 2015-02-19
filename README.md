@@ -22,6 +22,8 @@ xmap <D-R> <Plug>(transform)
 
 
 # TODO?
+* choose appropriate set of transformer from `&filetype`
+* laod user's transformer
 * `:'<,'>!` is always linewise, you can't transform partial area within single line.
 * Even if transformer raise error, buffer is replaced with that error msg.
 * template engine like erb is better in most case?
