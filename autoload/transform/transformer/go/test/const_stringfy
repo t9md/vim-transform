@@ -1,0 +1,6 @@
+const (
+	Running State = iota
+	Stopped
+	Rebooting
+	Terminated
+)

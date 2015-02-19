@@ -1,5 +1,5 @@
 # Dev Status
-Experimental for my personal use.
+VERY Experimental for my personal use.
 
 # STDIN => transform => STDOUT
 
@@ -12,6 +12,14 @@ Using vim's `!` command you can transform selected area by that transformer.
 This have great possibility to reduce typing!  
 
 ![Movie](https://raw.githubusercontent.com/t9md/t9md/772e1fe5287a29c01b3bb2418f757aa29785a4f8/img/transform.gif)
+
+# Config in vimrc
+
+```vim
+nmap <D-R> <Plug>(transform)
+xmap <D-R> <Plug>(transform)
+```
+
 
 # TODO?
 * `:'<,'>!` is always linewise, you can't transform partial area within single line.
