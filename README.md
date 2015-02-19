@@ -1,3 +1,6 @@
+# Dev Status
+Experimental for my personal use.
+
 # STDIN => transform => STDOUT
 
 Thats' filter command.
@@ -10,7 +13,7 @@ This have great possibility to reduce typing!
 
 ![Movie](https://raw.githubusercontent.com/t9md/t9md/772e1fe5287a29c01b3bb2418f757aa29785a4f8/img/transform.gif)
 
-# Problem and Idea
+# TODO?
 * `:'<,'>!` is always linewise, you can't transform partial area within single line.
 * Even if transformer raise error, buffer is replaced with that error msg.
 * template engine like erb is better in most case?
