@@ -7,28 +7,13 @@ let s:lang2cmd = {
       \ "go": "go run",
       \ }
 
-" Default config
-let s:default_conf = {}
-
-function! s:default_conf._(e) "{{{1
-  return "_" . "/stringfy_word.rb"
-endfunction
-
-function! s:default_conf.go(e) "{{{1
-  let c = a:e.content
-  let f = ''
-  if c.line_s =~# '\v^const\s*\(' && c.line_e =~# '\v\)\s*'
-    let f = "go/const_stringfy.rb"
-  elseif c['line_s-1'] =~# '\v^import\s*\('
-    let f = "go/import.rb"
-  endif
-  return f
-endfunction
-
 " Main
 let s:T = {}
 
-function! s:message(msg) "{{{1
+function! s:status(msg) "{{{1
+  if a:msg ==# 'SUCCESS'
+    return
+  endif
   echom 'transform:' a:msg
 endfunction
 
@@ -37,49 +22,56 @@ function! s:T.read_config() "{{{1
         \ exists('g:transform') && type(g:transform) ==# 4
         \ ? g:transform
         \ : {}
-  let conf = extend({},   s:default_conf)
+  let conf = extend({},   transform#route#default())
   return extend(conf, conf_user)
 endfunction
 
-function! s:T.determine_transformer() "{{{1
-  let env  = self.env
+function! s:T.handle() "{{{1
   let conf = self.read_config()
   let R    = ''
 
-  for ft in [ env.buffer.filetype, "_" ]
+  for ft in [ self.env.buffer.filetype, "_" ]
     unlet! F
     let F = get(conf, ft, '')
     if type(F) !=# 2
       continue
     endif
-    let R = call(F, [env], conf)
-    if !empty(R)
-      break
-    endif
+    let R = call(F, [self.env], conf)
   endfor
 
-  if empty(R)
-    throw 'CANT_DETERMINE_TRANSFORMER'
-  endif
+  throw "TRANSFORMER_NOT_FOUND"
+endfunction
 
-  if R[0] == '\v^/'
-    return R
-  endif
-  return join([self.env.path.dir_transformer, R], "/")
+function! s:T.run(...) "{{{1
+  try
+    let args = a:000
+
+    let filename = args[0]
+
+    let transformer_path =
+          \ filename[0] == '\v^/' ? filename :
+          \ join([self.env.path.dir_transformer, filename], "/")
+
+    let cmd   = self.get_cmd(transformer_path)
+    let stdin = join(self.env.content.all, "\n")
+    let self.env.content.res = system(cmd, stdin)
+    call self.write()
+  finally
+    throw "SUCCESS"
+  endtry
 endfunction
 
 function! s:T.start(startline, endline, mode) "{{{1
   try
     let self.env = transform#environment#new(a:startline, a:endline, a:mode)
-    let transformer = self.determine_transformer()
-    let self.env.content.res = self.transform(transformer)
-    call self.finish()
+    let self.env.app = self
+    call self.handle()
   catch
-    call s:message(v:exception)
+    call s:status(v:exception)
   endtry
 endfunction
 
-function! s:T.finish() "{{{1
+function! s:T.write() "{{{1
   if self.env.mode ==# 'v'
     normal! gv"_d
   else
@@ -114,10 +106,6 @@ endfunction
 " Public API
 function! transform#start(...) "{{{1
   call call(s:T.start, a:000, s:T)
-endfunction
-
-function! transform#default_config() "{{{1
-  return deepcopy(s:default_conf)
 endfunction
 " }}}
 " vim: foldmethod=marker

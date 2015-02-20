@@ -26,21 +26,31 @@ xmap <D-R> <Plug>(transform)
 ```
 ## Customize
 
+You can set handler function to choose appropriate transformer based on context.  
+`e` is environment variable, you can call `e.run(TRANSFORMER_NAME)`.  
+NOTE: `e.run()` call never return, imediately finish after rewritten buffer.  
+
+`g:transform` is Dictionary with `key=&filetype`, `value=Function`.  
+The magical `_` function is like `default_route` which always be called after &filetype specific function didn't invoke `run()`.  
+
+Your configuration will be merged into [default_conf](https://github.com/t9md/vim-transform/blob/master/autoload/transform/route.vim) by `extend(default_conf, user__conf)`
+
+
 ```vim
 let g:transform = {}
+
 function! g:transform._(e)
   return "_" . "/stringfy_word.rb"
 endfunction
 
-function! g:transform.go(e)
-  let c = a:e.content
-  let f = ''
-  if c.line_s =~# '\v^const\s*\('
-    let f = "go/const_stringfy.rb"
+function! s:route.go(e) "{{{1
+  let e = a:e
+  let c = e.content
+  if c.line_s =~# '\v^const\s*\(' && c.line_e =~# '\v\)\s*'
+    call e.run("go/const_stringfy.rb")
   elseif c['line_s-1'] =~# '\v^import\s*\('
-    let f = "go/import.rb"
+    call e.run("go/import.rb")
   endif
-  return f
 endfunction
 ```
 

@@ -11,6 +11,10 @@ function! s:Env.new(line_s, line_e, mode) "{{{1
   return extend(e, self)
 endfunction
 
+function! s:Env.run(...) "{{{1
+  call call(self.app.run, a:000, self.app)
+endfunction
+
 function! s:Env.set_path() "{{{1
   let R = {
         \ "dir_base": s:dir_base,
