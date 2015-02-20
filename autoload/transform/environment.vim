@@ -15,6 +15,12 @@ function! s:Env.run(...) "{{{1
   call call(self.app.run, a:000, self.app)
 endfunction
 
+function! s:Env.get(...) "{{{1
+  let args = extend(copy(a:000), [{'chain': 1}])
+  call call(self.app.run, args, self.app)
+  return self
+endfunction
+
 function! s:Env.set_path() "{{{1
   let R = {
         \ "dir_base": s:dir_base,
@@ -36,6 +42,10 @@ function! s:Env.set_content(line_s, line_e) "{{{1
         \ "line_e":   content[-1],
         \ "line_e+1": getline(a:line_e + 1),
         \ }
+  function! R.update(content)
+    let self.all = a:content
+    let self.len = len(a:content)
+  endfunction
   return R
 endfunction
 

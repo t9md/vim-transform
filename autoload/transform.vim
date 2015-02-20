@@ -48,7 +48,6 @@ let s:options_default = {
 
 " Main
 let s:T = {}
-let s:helper = transform#helper#get()
 let s:is_windows = has('win16') || has('win32') || has('win64') || has('win95')
 
 function! s:status(msg) "{{{1
@@ -101,7 +100,9 @@ function! s:T.run(...) "{{{1
   " tf => transformer
   try
     let [cmd; other] = a:000
-    let [tf, opt] = s:cmd_parse(cmd)
+    let run_opt = !empty(other) ? other[0] : {}
+
+    let [tf, tf_opt] = s:cmd_parse(cmd)
 
     let tf_with_slash = stridx(tf[1:],'/') !=# -1
     let tf_path = tf_with_slash
@@ -110,28 +111,19 @@ function! s:T.run(...) "{{{1
 
     let cmd   = self.get_cmd(tf_path)
     let stdin = self.env.content.all
+    call self.env.content.update( split(system(cmd . tf_opt, stdin), '\n' ))
 
-    let self.env.content.res = system(cmd . opt, stdin)
-
-    " Experiment don't use
-    if !empty(other) && exists('g:transform.helper_enable') && has_key(other[0], 'helper')
-      call self.run_helper(other[0].helper)
+    if get(run_opt, 'chain', 0)
+      return self
     endif
 
-    call self.write()
-  finally
+    if !empty(self.env.content.all)
+      call self.write()
+    endif
+
+
     throw "SUCCESS"
   endtry
-endfunction
-
-function! s:T.run_helper(helpers) "{{{1
-  for helper in a:helpers
-    let name = keys(helper)[0]
-    let args = values(helper)[0]
-    if has_key(self.helper, name)
-      call call(self.helper[name], args, self)
-    endif
-  endfor
 endfunction
 
 function! s:T.start(...) "{{{1
@@ -140,7 +132,6 @@ function! s:T.start(...) "{{{1
   try
     let self.env     = transform#environment#new(line_s, line_e, mode)
     let self.env.app = self
-    let self.helper  = s:helper
     let self.conf    = self.read_config()
 
     if !empty(transformer)
@@ -159,8 +150,7 @@ function! s:T.write() "{{{1
   else
     normal! "_dd
   endif
-  let result = split(self.env.content.res, "\n")
-  call append(self.env.buffer['line_s-1'], result )
+  call append(self.env.buffer['line_s-1'], self.env.content.all)
 endfunction
 
 function! s:T.get_cmd(tf) "{{{1

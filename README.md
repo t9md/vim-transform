@@ -76,8 +76,10 @@ let g:transform.options.path = "/Users/t9md/transformer"
 function! g:transform._(e)
   let e = a:e
   let c = e.content
+  let FILENAME = e.buffer.filename
+  let FILETYPE = e.buffer.filetype
 
-  if e.buffer.filetype ==# 'go'
+  if FILETYPE ==# 'go'
     if c.line_s =~# '\v^const\s*\(' && c.line_e =~# '\v\)\s*'
       call e.run("go/const_stringfy.rb")
     elseif c['line_s-1'] =~# '\v^import\s*\('
@@ -85,7 +87,7 @@ function! g:transform._(e)
     endif
   endif
 
-  if e.buffer.filetype =~# 'markdown'
+  if FILETYPE =~# 'markdown'
     " Dangerous example
     " if line is four leading space and '$', then execute string after '$' char.
     "  ex) '    $ ls -l' => trasnsformed result of 'ls -l'
@@ -102,7 +104,15 @@ function! g:transform._(e)
     endif
   endif
 
-  if e.buffer.filename =~# 'translate.md'
+  " To demonstrate get()
+  if FILENAME ==# 'sample.md'
+    " run() never return, you can use get() to chain multiple transformer.
+    " in this silly sample, supporse ~/testfile contains 'foo\nbar\n'.
+    " final result will be `FOO`
+    call e.get("cat ~/testfile").get("grep foo").run("_/upcase.rb")
+  endif
+
+  if FILENAME =~# 'translate.md'
     call e.run('google_translate.py')
   endif
   call e.run("_/stringfy_word.rb")
@@ -241,14 +251,13 @@ example output of `environment`
 Keep transformer script itself independent from editor, mean sharable between several editors.
 
 # TODO?
-* ` 0%` currently input is always treated as linewise, support charwise to transform partial area within single line
-* ` 1%` good default config and tranformer set?
-* ` 0%` command line arguments(or parameters) to transformer?
-* ` 0%` Unite transformer?
-* `30%` Make multiple tranformer chainable so that we can stringfy then surround by `import(` and `)`.
-  => curretly you can use pipe `|` in xNIX OS but need to exutable except first comand.
+* `  0%` currently input is always treated as linewise, support charwise to transform partial area within single line
+* `  1%` good default config and tranformer set?
+* `  0%` Unite transformer?
 
 # Done
+* `100%` command line arguments(or parameters) to transformer?
+  => user's preference, shoud work.
 * `100%` support directly excutable transformer( except windows ).
 * `100%` determine appropreate run command like 'ruby', 'python', 'go run' from extention of each transfomer?
   'ext => runner' table is not mature.
@@ -256,6 +265,9 @@ Keep transformer script itself independent from editor, mean sharable between se
 * `100%` support arbitrary directory for user's transformer
 * `100%` chosing appropriate transformer is hard, better to `do_what_I_mean` behavior by invoking controller and controller choose appropriate transformer from context(language and passed string).
 * ` 50%` make `:Transform` accept arg for directly specify transformer
+* `100%` Make multiple tranformer chainable so that we can stringfy then surround by `import(` and `)`.
+  => curretly you can use pipe `|` in xNIX OS but need to exutable except first comand.
+  => introduce get(), returnable/chainable verion of run().
 
 # DONT( once considered and decided not to do)
 * Whats' defference in advanced snipett plugin?(maybe this is way simple).
