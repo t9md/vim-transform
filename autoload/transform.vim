@@ -1,10 +1,18 @@
 " Table to determine runner from file extention.
 let s:lang2cmd = {
-      \ "rb": "ruby",
-      \ "py": "python",
-      \ "pl": "perl",
-      \ "sh": "sh",
-      \ "go": "go run",
+      \ "rb":     "ruby",
+      \ "py":     "python",
+      \ "pl":     "perl",
+      \ "sh":     "sh",
+      \ "go":     "go run",
+      \ "coffee": "coffee",
+      \ "js":     "node",
+      \ }
+
+" Default options
+let s:options_default = {
+      \ 'enable_default_config': 1,
+      \ 'path': '',
       \ }
 
 " Main
@@ -25,21 +33,16 @@ function! s:T.read_config() "{{{1
         \ exists('g:transform') && type(g:transform) ==# 4
         \ ? g:transform
         \ : {}
-  if !exists('conf_user.options')
+
+  if !exists('conf_user.options') || type(conf_user.options) !=# 4
     let conf_user.options = {}
   endif
+  call extend(conf_user.options, s:options_default, 'keep')
 
-  if s:get_options(conf_user.options, 'disable_default_config') !=# 1
+  if conf_user.options.enable_default_config
     call extend(conf,  transform#route#default())
   endif
   return extend(conf, conf_user)
-endfunction
-
-function! s:get_options(options, key)
-  if has_key(a:options, a:key)
-    return a:options[a:key]
-  endif
-  return -1
 endfunction
 
 function! s:T.handle() "{{{1
@@ -54,19 +57,30 @@ function! s:T.handle() "{{{1
     call call(F, [self.env], self.conf)
   endfor
 
-  throw "TRANSFORMER_NOT_FOUND"
+  throw "NOTHING_TODO"
+endfunction
+
+function! s:T.find_transformer(filename)
+  let path = join([self.conf.options.path, self.env.path.dir_transformer], ',')
+  let found = split(globpath(path, a:filename), "\n")
+  if empty(found)
+    throw "TRANSFORMER_NOT_FOUND"
+  endif
+  return found[0]
 endfunction
 
 function! s:T.run(...) "{{{1
   try
     let [filename; other] = a:000
 
-    let transformer_path =
-          \ filename[0] ==# '/' ? filename :
-          \ join([self.env.path.dir_transformer, filename], "/")
+    let filename_with_slash = stridx(filename[1:],'/') !=# -1
+    let transformer_path = filename_with_slash
+          \ ? self.find_transformer(filename)
+          \ : filename
 
     let cmd   = self.get_cmd(transformer_path)
-    let stdin = join(self.env.content.all, "\n")
+    let stdin = self.env.content.all
+
     let self.env.content.res = system(cmd, stdin)
 
     " Experiment don't use
@@ -124,20 +138,14 @@ function! s:T.get_cmd(tf) "{{{1
 
   let ext = fnamemodify(a:tf, ":t:e")
   let rc = get(s:lang2cmd, ext, '')
-  if empty(rc)
+
+  if empty(rc) |
     throw "CANT_DETERMINE_RUNNER"
   endif
-
   if !executable(rc)
     throw "RUNNER_NOT_EXCUTETABLE: " . rc
   endif
   return rc . ' ' . a:tf
-endfunction
-
-function! s:T.transform(tf) "{{{1
-  let cmd   = self.get_cmd(a:tf)
-  let stdin = join(self.env.content.all, "\n")
-  return system(cmd, stdin)
 endfunction
 
 " Public API

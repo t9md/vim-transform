@@ -48,6 +48,8 @@ Your configuration will be merged into [default_conf](https://github.com/t9md/vi
 
 ```vim
 let g:transform = {}
+let g:transform.options.enable_default_config = 0
+let g:transform.options.path = "/Users/t9md/my_transformer"
 
 function! g:transform._(e)
   call e.run("_/stringfy_word.rb")
@@ -71,7 +73,37 @@ NOTE: options name might change in future.
 ```vim
 let g:transform = {}
 let g:transform.options = {}
-let g:transform.options.disable_default_config = 1
+let g:transform.options.enable_default_config = 0
+```
+## How vim-transform find transformer
+
+if file begin with '/'(ex /bin/ls ) or filename not include '/'(ex some.py, some.rb) then find $PATH.  
+
+A. absolute path ex) /bin/ls  
+B. filename not include '/' ex) some.py some.rb  
+C. filename include '/' in the middle of filenmae.  
+
+for A, B, vim-transform pass command system() as-is, means use $PATH environment variable.  
+
+for C, vim-transform search following order.  
+
+1. user's transformer_ directory  
+2. system default transformer directory  
+
+You can set user's transformer directories with comma sepalated list of directory.  
+
+```vim
+let g:transform.options.path = "/Users/t9md/transformer,/Users/work/myfriend/transformer"
+```
+
+NOTE: As explained in C. you need '/' in flie name, this  
+
+```vim
+" filename include '/' try search from transformer dir
+call e.run("go/const_stringfy.rb")
+
+" since filename not include '/' not trying to search from tranformer directory.
+call e.run("const_stringfy.rb")
 ```
 
 ## I don't need filetype spefic function, want to controll in one place.
