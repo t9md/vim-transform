@@ -41,6 +41,7 @@ endfunction
 function! s:Env.set_buffer(line_s, line_e) "{{{1
   let R = {
         \ "filetype": &filetype,
+        \ "filename": fnamemodify(bufname(bufnr('')), ':t'),
         \ "bufnr":    bufnr(''),
         \ "line_s":   a:line_s,
         \ "line_e":   a:line_e,

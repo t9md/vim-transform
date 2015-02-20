@@ -106,6 +106,15 @@ call e.run("go/const_stringfy.rb")
 call e.run("const_stringfy.rb")
 ```
 
+## Want to change routing based on filename
+
+Google translate only if file name include `translate.md`
+```vim
+if e.buffer.filename =~# 'translate.md'
+  call e.run('google_translate.py')
+endif
+```
+
 ## I don't need filetype spefic function, want to controll in one place.
 
 Yes, you can. if you didn't define filtype specific handler, all transform request fall into `_` handler.  
