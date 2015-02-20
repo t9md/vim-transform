@@ -20,7 +20,7 @@ This have great possibility to reduce typing!
 ![Movie](https://raw.githubusercontent.com/t9md/t9md/019b944b5b1152dbb97b92471b7ec596769c8319/img/transform.gif)
 
 # Windows user?
-Currently not supported.
+~~Currently not supported.~~
 
 
 ## How it works
@@ -148,6 +148,8 @@ call e.run("go/const_stringfy.rb")
 " since filename not include '/' not trying to search from tranformer directory.
 call e.run("const_stringfy.rb")
 ```
+
+
 
 ## Want to change routing based on filename
 
