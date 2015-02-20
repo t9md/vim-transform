@@ -269,7 +269,7 @@ Keep transformer script itself independent from editor, mean sharable between se
   => curretly you can use pipe `|` in xNIX OS but need to exutable except first comand.
   => introduce get(), returnable/chainable verion of run().
 
-# DONT( once considered and decided not to do)
+# DONT( decided not to do)
 * Whats' defference in advanced snipett plugin?(maybe this is way simple).
 * CofferScript will be great helper as transformer for its simple syntax to JavaScript syntax(some of which is legal in other language). => nothing to do, user's preference.
 * Template engine like erb is better in most case? => you can by your own transformer.
