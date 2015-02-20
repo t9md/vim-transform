@@ -19,6 +19,10 @@ This have great possibility to reduce typing!
 
 ![Movie](https://raw.githubusercontent.com/t9md/t9md/019b944b5b1152dbb97b92471b7ec596769c8319/img/transform.gif)
 
+# Windows user?
+Currently not supported.
+
+
 ## How it works
 
 1. select area or simply post cursor where you want to transform.
