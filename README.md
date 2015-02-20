@@ -162,12 +162,12 @@ endif
 
 ## I don't need filetype spefic function, want to controll in one place.
 
-Yes, you can. if you didn't define filtype specific handler, all transform request fall into `_` handler.  
+Yes, you can. if you disable default handler and didn't define filtype specific handler, all transform request fall into `_` handler.  
 
 ```vim
 let g:transform = {}
 let g:transform.options = {}
-let g:transform.options.enable_default_config = 1
+let g:transform.options.enable_default_config = 0
 
 " you can use get filetype via env.buffer.filetype
 function! g:transform._(e)
@@ -237,26 +237,28 @@ example output of `environment`
 }
 ```
 
-# Ideally
+# once Ideally => now MUST
 Keep transformer script itself independent from editor, mean sharable between several editors.
 
-# Need to consider
-* command line arguments(or parameters) to transformer?
-* Unite transformer
+# TODO?
+* ` 0%` currently input is always treated as linewise, support charwise to transform partial area within single line
+* ` 1%` good default config and tranformer set?
+* ` 0%` command line arguments(or parameters) to transformer?
+* ` 0%` Unite transformer?
+* `30%` Make multiple tranformer chainable so that we can stringfy then surround by `import(` and `)`.
+  => curretly you can use pipe `|` in xNIX OS but need to exutable except first comand.
 
 # Done
-* Making excutable each transformer eliminate consideration by which programming ranguage transformer is written.
-* determine appropreate run command like 'ruby', 'python', 'go run' from extention of each transfomer?
-* choose appropriate set of transformer from `&filetype` => associated configurable function is called based on &ft.
-* load user's transformer => if transformer' path is begin with '/', use as absolulte path.
-* 100%: chosing appropriate transformer is hard, better to `do_what_I_mean` behavior by invoking controller and controller choose appropriate transformer from context(language and passed string).
-* 100%: CofferScript will be great helper as transformer for its simple syntax to JavaScript syntax(some of which is legal in other language). => nothing to do, user's preference.
+* `100%` support directly excutable transformer( except windows ).
+* `100%` determine appropreate run command like 'ruby', 'python', 'go run' from extention of each transfomer?
+  'ext => runner' table is not mature.
+* `100%`choose appropriate set of transformer from `&filetype` => call appropriate handler function based on &ft.
+* `100%` support arbitrary directory for user's transformer
+* `100%` chosing appropriate transformer is hard, better to `do_what_I_mean` behavior by invoking controller and controller choose appropriate transformer from context(language and passed string).
+* ` 50%` make `:Transform` accept arg for directly specify transformer
 
-# TODO?
-* 50%: make `:Transform` accept arg for directly specify transformer
-*  0%: `:'<,'>!` is always linewise, you can't transform partial area within single line.
-*  1%: good default config and tranformer set
-* ??%: template engine like erb is better in most case?
-* ??%: Whats' defference in advanced snipett plugin?(maybe this is way simple).
-* 30%: Make multiple tranformer chainable so that we can  stringfy then surround by `import(` and `)`.
-* ??%: Transformer Specification? when first arg is 'check', it shoud return 1 or 0 which is used by controller to determine appropreate transformer.
+# DONT( once considered and decided not to do)
+* Whats' defference in advanced snipett plugin?(maybe this is way simple).
+* CofferScript will be great helper as transformer for its simple syntax to JavaScript syntax(some of which is legal in other language). => nothing to do, user's preference.
+* Template engine like erb is better in most case? => you can by your own transformer.
+* Transformer Specification? when first arg is 'check', it shoud return 1 or 0 which is used by controller to determine appropreate transformer. => STDIN > STDOUT that's all. KISS.
