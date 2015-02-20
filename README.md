@@ -1,6 +1,11 @@
 # Dev Status
 alpher release, gathering feedback from users.  
+
+Give me feedback if you tried.  
 誰か試して、フィードバックちょうだい。  
+
+* [Twitter ID](https://twitter.com/t9md)
+
 <!-- VERY Experimental for my personal use. -->
 
 # STDIN > transform > STDOUT
