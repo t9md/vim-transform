@@ -30,6 +30,7 @@ function! s:Env.set_content(line_s, line_e) "{{{1
   endif
   let R = {
         \ "all":      content,
+        \ "len":      len(content),
         \ "line_s-1": getline(a:line_s - 1),
         \ "line_s":   content[0],
         \ "line_e":   content[-1],
