@@ -14,7 +14,7 @@ set cpo&vim
 " AutoCmd:
 
 " Command:
-command! -range -bar -nargs=* Transform call transform#start(<line1>, <line2>, <q-args>)
+command! -range -bar -nargs=* Transform call transform#start(<line1>, <line2>, <f-args>)
 
 " KeyMap:
 nnoremap <Plug>(transform) :Transform n<CR>

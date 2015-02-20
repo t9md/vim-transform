@@ -9,6 +9,7 @@ let s:lang2cmd = {
 
 " Main
 let s:T = {}
+let s:helper = transform#helper#get()
 
 function! s:status(msg) "{{{1
   if a:msg ==# 'SUCCESS'
@@ -27,16 +28,13 @@ function! s:T.read_config() "{{{1
 endfunction
 
 function! s:T.handle() "{{{1
-  let conf = self.read_config()
-  let R    = ''
-
   for ft in [ self.env.buffer.filetype, "_" ]
     unlet! F
-    let F = get(conf, ft, '')
+    let F = get(self.conf, ft, '')
     if type(F) !=# 2
       continue
     endif
-    let R = call(F, [self.env], conf)
+    call call(F, [self.env], self.conf)
   endfor
 
   throw "TRANSFORMER_NOT_FOUND"
@@ -44,28 +42,50 @@ endfunction
 
 function! s:T.run(...) "{{{1
   try
-    let args = a:000
-
-    let filename = args[0]
+    let [filename; other] = a:000
 
     let transformer_path =
-          \ filename[0] == '\v^/' ? filename :
+          \ filename[0] ==# '/' ? filename :
           \ join([self.env.path.dir_transformer, filename], "/")
 
     let cmd   = self.get_cmd(transformer_path)
     let stdin = join(self.env.content.all, "\n")
     let self.env.content.res = system(cmd, stdin)
+
+    " Experiment don't use
+    if !empty(other) && exists('g:transform.helper_enable') && has_key(other[0], 'helper')
+      call self.run_helper(other[0].helper)
+    endif
+
     call self.write()
   finally
     throw "SUCCESS"
   endtry
 endfunction
 
-function! s:T.start(startline, endline, mode) "{{{1
+function! s:T.run_helper(helpers) "{{{1
+  for helper in a:helpers
+    let name = keys(helper)[0]
+    let args = values(helper)[0]
+    if has_key(self.helper, name)
+      call call(self.helper[name], args, self)
+    endif
+  endfor
+endfunction
+
+function! s:T.start(...) "{{{1
+  let [line_s, line_e, mode; other] = a:000
   try
-    let self.env = transform#environment#new(a:startline, a:endline, a:mode)
+    let self.env = transform#environment#new(line_s, line_e, mode)
     let self.env.app = self
-    call self.handle()
+    let self.helper = s:helper
+    let self.conf = self.read_config()
+    if len(other) ==# 1
+      let transformer = other[0]
+      call self.run(transformer)
+    else
+      call self.handle()
+    endif
   catch
     call s:status(v:exception)
   endtry

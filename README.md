@@ -35,7 +35,6 @@ The magical `_` function is like `default_route` which always be called after &f
 
 Your configuration will be merged into [default_conf](https://github.com/t9md/vim-transform/blob/master/autoload/transform/route.vim) by `extend(default_conf, user__conf)`
 
-
 ```vim
 let g:transform = {}
 
@@ -119,6 +118,7 @@ Keep transformer script itself independent from editor, mean sharable between se
 * load user's transformer => if transformer' path is begin with '/', use as absolulte path.
 
 # TODO?
+* make `:Transform` accept arg for directly specify transformer
 * `:'<,'>!` is always linewise, you can't transform partial area within single line.
 * good default config and tranformer set
 * template engine like erb is better in most case?
