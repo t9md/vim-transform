@@ -113,7 +113,7 @@ Yes, you can. if you didn't define filtype specific handler, all transform reque
 ```vim
 let g:transform = {}
 let g:transform.options = {}
-let g:transform.options.disable_default_config = 1
+let g:transform.options.enable_default_config = 1
 
 " you can use get filetype via env.buffer.filetype
 function! g:transform._(e)
