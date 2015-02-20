@@ -10,6 +10,7 @@ let s:lang2cmd = {
 " Main
 let s:T = {}
 let s:helper = transform#helper#get()
+let s:is_windows = has('win16') || has('win32') || has('win64') || has('win95')
 
 function! s:status(msg) "{{{1
   if a:msg ==# 'SUCCESS'
@@ -117,7 +118,7 @@ function! s:T.write() "{{{1
 endfunction
 
 function! s:T.get_cmd(tf) "{{{1
-  if executable(a:tf)
+  if !s:is_windows && executable(a:tf)
     return a:tf
   endif
 
