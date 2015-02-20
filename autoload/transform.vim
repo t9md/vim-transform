@@ -19,16 +19,32 @@ function! s:status(msg) "{{{1
 endfunction
 
 function! s:T.read_config() "{{{1
+  let conf = {}
   let conf_user =
         \ exists('g:transform') && type(g:transform) ==# 4
         \ ? g:transform
         \ : {}
-  let conf = extend({},   transform#route#default())
+  if !exists('conf_user.options')
+    let conf_user.options = {}
+  endif
+
+  if s:get_options(conf_user.options, 'disable_default_config') !=# 1
+    call extend(conf,  transform#route#default())
+  endif
   return extend(conf, conf_user)
 endfunction
 
+function! s:get_options(options, key)
+  if has_key(a:options, a:key)
+    return a:options[a:key]
+  endif
+  return -1
+endfunction
+
 function! s:T.handle() "{{{1
-  for ft in [ self.env.buffer.filetype, "_" ]
+  let handlers = [self.env.buffer.filetype, "_" ]
+
+  for ft in handlers
     unlet! F
     let F = get(self.conf, ft, '')
     if type(F) !=# 2

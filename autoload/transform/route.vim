@@ -16,5 +16,5 @@ function! s:route.go(e) "{{{1
 endfunction
 
 function! transform#route#default()
-  return s:route
+  return deepcopy(s:route)
 endfunction

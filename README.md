@@ -39,7 +39,7 @@ Your configuration will be merged into [default_conf](https://github.com/t9md/vi
 let g:transform = {}
 
 function! g:transform._(e)
-  return "_" . "/stringfy_word.rb"
+  call e.run("_/stringfy_word.rb")
 endfunction
 
 function! s:route.go(e) "{{{1
@@ -50,6 +50,42 @@ function! s:route.go(e) "{{{1
   elseif c['line_s-1'] =~# '\v^import\s*\('
     call e.run("go/import.rb")
   endif
+endfunction
+```
+
+## I don't like default transformer set,
+Understood, you can disable it.
+NOTE: options name might change in future.
+
+```vim
+let g:transform = {}
+let g:transform.options = {}
+let g:transform.options.disable_default_config = 1
+```
+
+## I don't need filetype spefic function, want to controll in one place.
+
+Yes, you can. if you didn't define filtype specific handler, all transformer request fall into `_` handler.
+
+```vim
+let g:transform = {}
+let g:transform.options = {}
+let g:transform.options.disable_default_config = 1
+
+" you can use get filetype via env.buffer.filetype
+function! g:transform._(e)
+  let e = a:e
+  let c = e.content
+
+  if e.buffer.filetype ==# 'go'
+    if c.line_s =~# '\v^const\s*\(' && c.line_e =~# '\v\)\s*'
+      call e.run("go/const_stringfy.rb")
+    elseif c['line_s-1'] =~# '\v^import\s*\('
+      call e.run("go/import.rb")
+    endif
+  endif
+
+  call e.run("_/stringfy_word.rb")
 endfunction
 ```
 
