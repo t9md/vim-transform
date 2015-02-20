@@ -265,11 +265,12 @@ Keep transformer script itself independent from editor, mean sharable between se
 * `100%` support arbitrary directory for user's transformer
 * `100%` chosing appropriate transformer is hard, better to `do_what_I_mean` behavior by invoking controller and controller choose appropriate transformer from context(language and passed string).
 * ` 50%` make `:Transform` accept arg for directly specify transformer
+  => need doc => `:Transform 'v|n' TRANSFORMER`. v = visual, n = normal
 * `100%` Make multiple tranformer chainable so that we can stringfy then surround by `import(` and `)`.
-  => curretly you can use pipe `|` in xNIX OS but need to exutable except first comand.
+  => You can use pipe `|` in xNIX OS but need to exutable except first comand.
   => introduce get(), returnable/chainable verion of run().
 
-# DONT( decided not to do)
+# DONT( THINK or CARE or DO )
 * Whats' defference in advanced snipett plugin?(maybe this is way simple).
 * CofferScript will be great helper as transformer for its simple syntax to JavaScript syntax(some of which is legal in other language). => nothing to do, user's preference.
 * Template engine like erb is better in most case? => you can by your own transformer.
