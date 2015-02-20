@@ -1,6 +1,6 @@
 # Dev Status
-alpher release, gathering feedback from users.
-誰か試して、フィードバックちょうだい。
+alpher release, gathering feedback from users.  
+誰か試して、フィードバックちょうだい。  
 <!-- VERY Experimental for my personal use. -->
 
 # STDIN > transform > STDOUT
