@@ -57,7 +57,7 @@ let g:transform.options.enable_default_config = 0
 let g:transform.options.path = "/Users/t9md/my_transformer"
 
 function! g:transform._(e)
-  call e.run("_/stringfy_word.rb")
+  call a:e.run("_/stringfy_word.rb")
 endfunction
 
 function! s:route.go(e) "{{{1
