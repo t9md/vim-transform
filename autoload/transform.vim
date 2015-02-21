@@ -102,10 +102,10 @@ function! s:T.run(...) "{{{1
 
     let [TF, TF_opt] = s:cmd_parse(cmd)
 
+    let TF = expand(TF)
     let TF_with_slash = stridx(TF[1:],'/') !=# -1
-    let TF_path = TF_with_slash
-          \ ? self.find_transformer(TF)
-          \ : TF
+    let TF_path =
+          \ (TF[0] ==# '/' || !TF_with_slash) ? TF : self.find_transformer(TF)
 
     let cmd   = self.get_cmd(TF_path)
     let stdin = self.env.content.all
