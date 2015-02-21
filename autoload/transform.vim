@@ -7,6 +7,7 @@ let s:lang2cmd = {
       \ "go":     "go run",
       \ "coffee": "coffee",
       \ "js":     "node",
+      \ "lua":    "lua",
       \ }
 
 " Utility function
