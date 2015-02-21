@@ -251,7 +251,7 @@ example output of `environment`
 ```
 ### I don't want write any Vimscript, want to completely handle my faviorite language.
 
-OK, you don't like routing match logic written in Vimscript.  
+OK, you don't like routing logic written in Vimscript.  
 If so, let Vim delegate all request to your favorite transformer.  
 
 Check example [ruby_handler](https://github.com/t9md/vim-transform/blob/master/misc/ruby_handler).
