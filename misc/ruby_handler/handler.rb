@@ -1,113 +1,8 @@
-# This is sample handler to serve all request
-# You can experiment, extend based on this sample.
-# For configuration of vim side, refer config.vim in same directory.
+require_relative './lib/transformer'
+require_relative './lib/transformer/base'
+require_relative './lib/transformer/go'
 
-class TF
-  class <<  self
-    def get(condition, &blk)
-      handlers.push([condition, blk])
-    end
-
-    def handlers
-      @handlers ||= []
-      @handlers
-    end
-
-    def register(&blk)
-      instance_eval(&blk)
-    end
-
-    def start(input)
-      @handlers.each do |regexp, blk|
-        m = regexp.match(input)
-        if m
-          blk.call(input, m)
-          return
-        end
-      end
-    end
-  end
-end
-
-module Go
-  class Import
-    def self.run(input)
-      r = []
-      repos = {
-        gh: "github.com",
-        cg: "code.google.com",
-        gl: "golang.org",
-      }
-
-      input.each_line do |l|
-        l.strip.split.map do |e|
-          repos.each do |k, v|
-            k = k.to_s
-            if e =~ /^#{k}\//
-              e = e.sub k, v
-              break
-            end
-          end
-          r << e
-        end
-      end
-      puts r.map { |e| %!\t"#{e}"! }.join("\n").chomp
-    end
-  end
-
-  class ConstStringfy
-    class << self
-      def parse(s)
-        type = ""
-        enums = []
-        s.split("\n").each do |e|
-          next if e =~ /\(|\)/
-          n = e.split
-          type << n[1] if n.size > 1
-          enums << n.first
-        end
-        [type, enums]
-      end
-
-      def run(s)
-        type, enums = *parse(s)
-        v = type[0].downcase
-
-        out = ""
-        enums.each do |e|
-          out << "\tcase #{e}:\n"
-          out << "\t\treturn \"#{e}\"\n"
-        end
-        return <<-EOS
-#{s}
-
-func (#{v} #{type}) String() string {
-\tswitch #{v} {
-#{out.chomp}
-\tdefault:
-\t\treturn "Unknown"
-\t}
-}
-        EOS
-      end
-    end
-  end
-end
-
-class SimpleCommand
-  def initialize(command)
-    @command = command
-  end
-  def run(input)
-    IO.popen(@command, "r+") do |io|
-      io.puts input
-      io.close_write
-      io.read
-    end
-  end
-end
-
-input   = STDIN.read
+input = STDIN.read
 input = input.split("\n", -1)
 
 $env = {
@@ -116,36 +11,78 @@ $env = {
   'line_s-1' => input.shift,
   'line_e+1' => input.pop,
 }
-
 input = input.join("\n")
 
-
+TF = Transformer
 
 TF.register do
   if $env[:filetype] == 'go'
-    if $env['line_s-1'] =~ /^import\s*\(/
-      get /./ do |req|
-        Go::Import.run(req)
+      if $env['line_s-1'] =~ /^import\s*\(/
+        get /./ do |req|
+          puts TF::Go::Import.run(req)
+        end
       end
-    end
 
-    get /^const\s*\(/ do |req|
-      puts Go::ConstStringfy.run(req)
-    end
+      get /^const\s*\(/ do |req|
+        puts TF::Go::ConstStringfy.run(req)
+      end
   end
 
-  if $env[:filename] == "sample.md"
+  if $env[:filename] == "tryit.md"
+    # Insert content of URL
+    get %r!^\s*http://.*$! do |req, m|
+      puts req
+      system "curl #{req}"
+    end
+
+
+
+    # Insert command output ( not necessarily transformed )
+    # =====================================
+    # Before: '|' indicate HOL
+    # |     $ ls
+    # After:
+    # |     $ ls -l
+    # |     total 32
+    # |     -rw-r--r--  1 t9md  staff  9294 Feb 22 01:58 README.md
+    # |     drwxr-xr-x  4 t9md  staff   136 Feb 20 16:31 autoload
+    # |     drwxr-xr-x  5 t9md  staff   170 Feb 21 17:01 misc
+    # |     drwxr-xr-x  3 t9md  staff   102 Feb 19 12:07 plugin
+    # |     -rw-r--r--  1 t9md  staff  2640 Feb 20 00:54 tags
+    #
     get /^    \$(.*)$/ do |req, m|
-      puts SimpleCommand.new(m[1]).run(req)
+      puts req
+      puts `#{m[1]}`.split("\n").map { |e| "    #{e}" }.join("\n")
     end
+
+    # Send command to tmux's pane
+    # =====================================
+    # send `hostname` command to tmux's pane specified in bracket.
+    #
+    # Before:
+    #
+    # |!!tmux[0] hostname
+    #
+    # Side Effect:
+    #
+    # send `hostname` command to tmux's pane 0
+    #
+    # After: nothing changed
+    #
+    # |!!tmux[0] hostname
+    #
+    # get /!!tmux\[(\d+)\] (.*)$/ do |req, m|
+    #   cmd = %!tmux send-keys -t#{m[1]} "#{m[2]}" Enter!
+    #   system cmd
+    # end
+
   end
 
-  # simply stringfy
+  # stringfy
   get /.*/ do |req|
-    req.split("\n").map do |l|
-      puts l.chomp.split.map {|e| %!"#{e}"! }.join(", ")
-    end
+    puts TF::Base::StringfyWord.run(req)
   end
 end
 
 TF.start input
+
