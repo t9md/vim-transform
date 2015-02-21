@@ -6,29 +6,29 @@ input = STDIN.read
 input = input.split("\n", -1)
 
 $env = {
-  filename: ARGV[0],
-  filetype: ARGV[1],
   'line_s-1' => input.shift,
   'line_e+1' => input.pop,
 }
 input = input.join("\n")
 
-TF = Transformer
+TF        = Transformer
+FILE_NAME = ARGV[0]
+FILE_TYPE = ARGV[1]
 
 TF.register do
-  if $env[:filetype] == 'go'
+  if FILE_TYPE == 'go'
       if $env['line_s-1'] =~ /^import\s*\(/
         get /./ do |req|
           puts TF::Go::Import.run(req)
         end
       end
 
-      get /^const\s*\(/ do |req|
+      get /^const\s*\(.*\)$/m do |req|
         puts TF::Go::ConstStringfy.run(req)
       end
   end
 
-  if $env[:filename] == "tryit.md"
+  if FILE_NAME == "tryit.md"
     # Insert content of URL
     get %r!^\s*http://.*$! do |req, m|
       puts req
