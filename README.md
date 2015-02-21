@@ -246,6 +246,15 @@ example output of `environment`
   'set_path': function('414')
 }
 ```
+### I don't want write any Vimscript, want to completely handle my faviorite language.
+
+OK, you don't like routing match logic written in Vimscript.
+If so, let Vim delegate all request to your favorite transformer.
+
+Check example [ruby_handler](https://github.com/t9md/vim-transform/blob/master/misc/ruby_handler).
+
+* in Vim side, all request is forwarded to handler.rb
+* hndler.rb have responsible both request routing and response(=transformation).
 
 # once Ideally => now MUST
 Keep transformer script itself independent from editor, mean sharable between several editors.

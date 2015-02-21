@@ -14,12 +14,10 @@ const (
 	Stopped
 	Rebooting
 )
-
 // main
 func main() {
 	// tedious array/slice literal
 	a := []string{
 		a b c d e
 	}
-}
 
