@@ -11,12 +11,9 @@ let s:lang2cmd = {
 
 " Utility function
 function! s:dictionary_exists(var) "{{{1
+  " only work for global var
   let [scope, name] = split(a:var, ':')
-  if     scope ==# 'g' | let d = g:
-  elseif scope ==# 'l' | let d = g:
-  elseif scope ==# 's' | let d = g:
-  endif
-  return type(get(d, name) ) ==# 4
+  return has_key(g:, name) && type(get(g:, name)) ==# 4
 endfunction
 
 function! s:str_strip(s) "{{{1
@@ -27,7 +24,7 @@ endfunction
 function! s:cmd_parse(cmd) "{{{1
   " split `cmd` to [bin, option] like following
   " ' /bin/ls -l ' => ['/bin/ls', ' -l']
-  " '/bin/ls'      => ['/bin/ls', ' -l']
+  " '/bin/ls'      => ['/bin/ls', '']
   let cmd = s:str_strip(a:cmd)
   let i = stridx(cmd, ' ')
   if i ==# -1
@@ -74,44 +71,44 @@ endfunction
 function! s:T.handle() "{{{1
   let handlers = [self.env.buffer.filetype, "_" ]
 
-  for ft in handlers
-    unlet! F
-    let F = get(self.conf, ft, '')
-    if type(F) !=# 2
+  for handler in handlers
+    unlet! TF
+    let TF = get(self.conf, handler)
+    if type(TF) !=# 2
       continue
     endif
-    call call(F, [self.env], self.conf)
+    call call(TF, [self.env], self.conf)
   endfor
 
   throw "NOTHING_TODO"
 endfunction
 
 function! s:T.find_transformer(filename)
-  let path = join([self.conf.options.path, self.env.path.dir_transformer], ',')
+  let path  = join([self.conf.options.path, self.env.path.dir_transformer], ',')
   let found = split(globpath(path, a:filename), "\n")
-  if empty(found)
-    throw "TRANSFORMER_NOT_FOUND"
+  if !empty(found)
+    return found[0]
   endif
-  return found[0]
+  throw "TRANSFORMER_NOT_FOUND"
 endfunction
 
 
 function! s:T.run(...) "{{{1
-  " tf => transformer
+  " TF => transformer
   try
     let [cmd; other] = a:000
     let run_opt = !empty(other) ? other[0] : {}
 
-    let [tf, tf_opt] = s:cmd_parse(cmd)
+    let [TF, TF_opt] = s:cmd_parse(cmd)
 
-    let tf_with_slash = stridx(tf[1:],'/') !=# -1
-    let tf_path = tf_with_slash
-          \ ? self.find_transformer(tf)
-          \ : tf
+    let TF_with_slash = stridx(TF[1:],'/') !=# -1
+    let TF_path = TF_with_slash
+          \ ? self.find_transformer(TF)
+          \ : TF
 
-    let cmd   = self.get_cmd(tf_path)
+    let cmd   = self.get_cmd(TF_path)
     let stdin = self.env.content.all
-    call self.env.content.update( split(system(cmd . tf_opt, stdin), '\n' ))
+    call self.env.content.update( split(system(cmd . TF_opt, stdin), '\n' ))
 
     if get(run_opt, 'chain', 0)
       return self
@@ -121,22 +118,24 @@ function! s:T.run(...) "{{{1
       call self.write()
     endif
 
-
     throw "SUCCESS"
   endtry
 endfunction
 
 function! s:T.start(...) "{{{1
+  " TF => transformer
   let [line_s, line_e, mode; other] = a:000
-  let transformer = len(other) ==# 1 ? other[0] : ''
+  let TF = len(other) ==# 1 ? other[0] : ''
   try
     let self.env     = transform#environment#new(line_s, line_e, mode)
     let self.env.app = self
     let self.conf    = self.read_config()
 
-    if !empty(transformer)
-      call self.run(transformer)
+    if !empty(TF)
+      " user specify transformer explicitly
+      call self.run(TF)
     else
+      " heuristic
       call self.handle()
     endif
   catch
@@ -145,7 +144,7 @@ function! s:T.start(...) "{{{1
 endfunction
 
 function! s:T.write() "{{{1
-  if self.env.mode ==# 'v' |
+  if self.env.mode ==# 'v'
     normal! gv"_d
   else
     normal! "_dd
