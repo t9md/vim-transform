@@ -17,7 +17,7 @@ function! s:Env.run(...) "{{{1
 endfunction
 
 function! s:Env.get(...) "{{{1
-  let args = extend(copy(a:000), [{'chain': 1}])
+  call call(self.app.run, a:000, self.app)
   return self
 endfunction
 

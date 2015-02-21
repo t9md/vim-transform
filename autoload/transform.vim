@@ -110,9 +110,6 @@ function! s:T.run(...) "{{{1
     let stdin = self.env.content.all
     call self.env.content.update( split(system(cmd . TF_opt, stdin), '\n' ))
 
-    if !empty(self.env.content.all)
-      call self.write()
-    endif
   endtry
 endfunction
 
@@ -134,6 +131,10 @@ function! s:T.start(...) "{{{1
     endif
   catch
     call s:status(v:exception)
+
+    if !empty(self.env.content.all)
+      call self.write()
+    endif
   endtry
 endfunction
 
