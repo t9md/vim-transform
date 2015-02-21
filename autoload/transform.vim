@@ -98,7 +98,6 @@ function! s:T.run(...) "{{{1
   " TF => transformer
   try
     let [cmd; other] = a:000
-    let run_opt = !empty(other) ? other[0] : {}
 
     let [TF, TF_opt] = s:cmd_parse(cmd)
 
@@ -111,15 +110,9 @@ function! s:T.run(...) "{{{1
     let stdin = self.env.content.all
     call self.env.content.update( split(system(cmd . TF_opt, stdin), '\n' ))
 
-    if get(run_opt, 'chain', 0)
-      return self
-    endif
-
     if !empty(self.env.content.all)
       call self.write()
     endif
-
-    throw "SUCCESS"
   endtry
 endfunction
 

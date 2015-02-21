@@ -39,7 +39,7 @@ function! g:transform._(e)
     " run() never return, you can use get() to chain multiple transformer.
     " in this silly sample, supporse ~/testfile contains 'foo\nbar\n'.
     " final result will be `FOO`
-    call e.get("cat ~/testfile").get("grep foo").run("_/upcase.rb")
+    call e.get("cat ~/testfile").get("grep foo").run("tr '[:lower:]' '[:upper:]'")
   endif
 
   if FILENAME =~# 'translate.md'
