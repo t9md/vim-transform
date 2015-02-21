@@ -34,6 +34,7 @@ This have great possibility to reduce typing!
 ```vim
 nmap <D-R> <Plug>(transform)
 xmap <D-R> <Plug>(transform)
+imap <D-R> <Plug>(transform)
 ```
 ## Customize
 
