@@ -65,6 +65,7 @@ function! s:route.go(e) "{{{1
   endif
 endfunction
 ```
+
 As you see above, you can configure handler function to choose appropriate transformer based on context.  
 `e` is environment variable, you can use several methods `e` provides.
 
@@ -137,8 +138,7 @@ endif
 
 ## I don't need filetype spefic function, want to controll in one place.
 
-You can.  
-If you disable default handler and didn't define filtype specific handler, all transform request fall into `_` handler.  
+You can, if you disable default handler and didn't define filtype specific handler, all transform request fall into `_` handler.  
 
 ```vim
 let g:transform = {}
@@ -178,7 +178,8 @@ example output of `environment`
 ```vim
 {
   'buffer': {
-    'bufnr': 53,
+    'bufnr': 4,
+    'filename': 'tryit.vim',
     'filetype': 'vim',
     'line_e': 5,
     'line_e+1': 6,
@@ -188,30 +189,35 @@ example output of `environment`
   'content': {
     'all': [
       'echo PP(transform#environment#new(1, 5, ''n''))',
-      'finish',
-      'let g:transform = {}',
       '',
-      'function! g:transform._(e)'
+      '',
+      '',
+      ''
     ],
+    'len': 5,
+    'line_e': '',
+    'line_e+1': '',
     'line_s':
       'echo PP(transform#environment#new(1, 5, ''n''))',
     'line_s-1': '',
-    'line_e': 'function! g:transform._(e)',
-    'line_e+1': '  return "_" . "/stringfy_word.rb"'
+    'update': function('971')
   },
+  'get': function('251'),
   'mode': 'n',
-  'new': function('413'),
+  'new': function('249'),
   'path': {
     'dir_base':
       '/Users/t9md/.vim/bundle/vim-transform/autoload/transform',
     'dir_transformer':
       '/Users/t9md/.vim/bundle/vim-transform/autoload/transform/transformer'
   },
-  'set_buffer': function('416'),
-  'set_content': function('415'),
-  'set_path': function('414')
+  'run': function('250'),
+  'set_buffer': function('254'),
+  'set_content': function('253'),
+  'set_path': function('252')
 }
 ```
+
 ## I don't want write any Vimscript, want to completely handle my faviorite language.
 
 OK, you don't like routing logic written in Vimscript.  
