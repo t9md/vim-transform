@@ -12,15 +12,34 @@ let s:lang2cmd = {
 
 " Utility function
 function! s:dictionary_exists(var) "{{{1
-  " only work for global var
-  let [scope, name] = split(a:var, ':')
-  return has_key(g:, name) && type(get(g:, name)) ==# 4
+  return exists(a:var) && s:Is_Dictionary(eval(a:var))
 endfunction
 
 function! s:str_strip(s) "{{{1
   " strip leading and trailing whilte space
   return substitute(a:s, '\v(^\s*)|(\s*$)', '', 'g')
 endfunction
+
+" dynamically define s:Is_Number(v)  etc..
+function! s:define_type_checker() "{{{1
+  let types = {
+        \ "Number":     0,
+        \ "String":     1,
+        \ "Funcref":    2,
+        \ "List":       3,
+        \ "Dictionary": 4,
+        \ "Float":      5,
+        \ }
+
+  for [type, number] in items(types)
+    let s = ''
+    let s .= 'function! s:Is_' . type . '(v)' . "\n"
+    let s .= '  return type(a:v) ==# ' . number . "\n"
+    let s .= 'endfunction' . "\n"
+    execute s
+  endfor
+endfunction
+call s:define_type_checker()
 
 function! s:cmd_parse(cmd) "{{{1
   " split `cmd` to [bin, option] like following
@@ -48,13 +67,6 @@ let s:options_default = {
 let s:T = {}
 let s:is_windows = has('win16') || has('win32') || has('win64') || has('win95')
 
-function! s:status(msg) "{{{1
-  if a:msg ==# 'SUCCESS'
-    return
-  endif
-  echom 'transform:' a:msg
-endfunction
-
 function! s:T.read_config() "{{{1
   let conf_user =
         \ s:dictionary_exists('g:transform')
@@ -75,7 +87,7 @@ function! s:T.handle() "{{{1
   for handler in handlers
     unlet! TF
     let TF = get(self.conf, handler)
-    if type(TF) !=# 2
+    if !s:Is_Funcref(TF)
       continue
     endif
     call call(TF, [self.env], self.conf)
@@ -84,7 +96,7 @@ function! s:T.handle() "{{{1
   throw "NOTHING_TODO"
 endfunction
 
-function! s:T.find_transformer(filename)
+function! s:T.find_transformer(filename) "{{{1
   let path  = join([self.conf.options.path, self.env.path.dir_transformer], ',')
   let found = split(globpath(path, a:filename), "\n")
   if !empty(found)
@@ -92,7 +104,6 @@ function! s:T.find_transformer(filename)
   endif
   throw "TRANSFORMER_NOT_FOUND"
 endfunction
-
 
 function! s:T.run(...) "{{{1
   " TF => transformer
@@ -108,8 +119,7 @@ function! s:T.run(...) "{{{1
 
     let cmd   = self.get_cmd(TF_path)
     let stdin = self.env.content.all
-    call self.env.content.update( split(system(cmd . TF_opt, stdin), '\n' ))
-
+    call self.env.content.update(split(system(cmd . TF_opt, stdin), '\n' ))
   endtry
 endfunction
 
@@ -129,12 +139,12 @@ function! s:T.start(...) "{{{1
       " heuristic
       call self.handle()
     endif
-  catch
-    call s:status(v:exception)
-
+  catch /^SUCCESS/
     if !empty(self.env.content.all)
       call self.write()
     endif
+  catch
+    echom 'transform:' v:exception
   endtry
 endfunction
 
