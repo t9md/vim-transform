@@ -51,10 +51,18 @@ let g:transform.options.enable_default_config = 0
 " specify where to find transformer script
 let g:transform.options.path = "/Users/t9md/my_transformer"
 
+" handler functions for each &filetype
+"---------------------------------------
+" each handler function take only one argment in this example `e`.
+" This `e` is environment vim-transformer use.
+" You can call `run()` or `get()` method on `e` to execute transformer.
+
+" `_` is special handler called when other filetype specific handler did'nt match(=didn't call `run()`).
 function! g:transform._(e)
   call a:e.run("_/stringfy_word.rb")
 endfunction
 
+" `go` is handler called when &filetype=go. you can define your own handler based on &filetype.
 function! s:route.go(e) "{{{1
   let e = a:e
   let c = e.content
