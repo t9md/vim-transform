@@ -12,7 +12,7 @@ let s:lang2cmd = {
 
 " Utility function
 function! s:dictionary_exists(var) "{{{1
-  return exists(a:var) && s:Is_Dictionary(eval(a:var))
+  return exists(a:var) && s:is_Dictionary(eval(a:var))
 endfunction
 
 function! s:str_strip(s) "{{{1
@@ -20,7 +20,7 @@ function! s:str_strip(s) "{{{1
   return substitute(a:s, '\v(^\s*)|(\s*$)', '', 'g')
 endfunction
 
-" dynamically define s:Is_Number(v)  etc..
+" dynamically define s:is_Number(v)  etc..
 function! s:define_type_checker() "{{{1
   let types = {
         \ "Number":     0,
@@ -33,7 +33,7 @@ function! s:define_type_checker() "{{{1
 
   for [type, number] in items(types)
     let s = ''
-    let s .= 'function! s:Is_' . type . '(v)' . "\n"
+    let s .= 'function! s:is_' . type . '(v)' . "\n"
     let s .= '  return type(a:v) ==# ' . number . "\n"
     let s .= 'endfunction' . "\n"
     execute s
@@ -43,8 +43,10 @@ call s:define_type_checker()
 
 function! s:cmd_parse(cmd) "{{{1
   " split `cmd` to [bin, option] like following
-  " ' /bin/ls -l ' => ['/bin/ls', ' -l']
-  " '/bin/ls'      => ['/bin/ls', '']
+  " Example:
+  "   ' /bin/ls -l '    => ['/bin/ls', ' -l']
+  "   'grep -v "^\s*$"' => ['grep', ' -v "^\s*$"']
+  "   '/bin/ls'         => ['/bin/ls', '']
   let cmd = s:str_strip(a:cmd)
   let i = stridx(cmd, ' ')
   if i ==# -1
@@ -63,7 +65,7 @@ let s:options_default = {
       \ 'path': '',
       \ }
 
-" Main
+" Main:
 let s:T = {}
 let s:is_windows = has('win16') || has('win32') || has('win64') || has('win95')
 
@@ -87,7 +89,7 @@ function! s:T.handle() "{{{1
   for handler in handlers
     unlet! TF
     let TF = get(self.conf, handler)
-    if !s:Is_Funcref(TF)
+    if !s:is_Funcref(TF)
       continue
     endif
     call call(TF, [self.env], self.conf)
@@ -119,32 +121,32 @@ function! s:T.select(cmds)
 
   let i = 0
   let desc_longest = 0
-  for d in cmds
-    if !s:Is_Dictionary(d)
+  for D in cmds
+    unlet! D
+    if !s:is_Dictionary(D)
       continue
     endif
 
     let i += 1
-    let [desc, cmd] = items(d)[0]
+    let [desc, cmd] = items(D)[0]
     let num2cmd[i] = cmd
     let desc_longest = max([desc_longest, len(desc)])
     let fmt =  "  %d: %-" . desc_longest . "s => '%s'"
     call add(menu, printf(fmt, i, desc, cmd))
-    unlet! d
   endfor
 
   let R =  get(num2cmd, inputlist(menu), '')
-  if empty(R)
-    throw 'OUT_OF_RANGE'
+  if !empty(R)
+    return R
   endif
-  return R
+  throw 'OUT_OF_RANGE'
 endfunction
 
 function! s:T.run(...) "{{{1
   " TF => transformer
   try
     let [_cmd; other] = a:000
-    let cmd = s:Is_String(_cmd) ? _cmd : self.select(_cmd)
+    let cmd = s:is_String(_cmd) ? _cmd : self.select(_cmd)
 
     let [TF, TF_opt] = s:cmd_parse(cmd)
 
@@ -171,6 +173,7 @@ function! s:T.start(...) "{{{1
     if !empty(TF)
       " user specify transformer explicitly
       call self.run(TF)
+      throw 'SUCCESS'
     else
       " heuristic
       call self.handle()

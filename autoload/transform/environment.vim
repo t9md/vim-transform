@@ -13,7 +13,7 @@ endfunction
 
 function! s:Env.run(...) "{{{1
   call call(self.app.run, a:000, self.app)
-  throw "SUCCESS"
+  throw 'SUCCESS'
 endfunction
 
 function! s:Env.get(...) "{{{1
