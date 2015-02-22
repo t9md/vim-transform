@@ -196,6 +196,7 @@ function! s:T.write() "{{{1
     normal! "_dd
   endif
   call append(self.env.buffer['line_s-1'], self.env.content.all)
+  call setpos('.', self.env.buffer.pos)
 endfunction
 
 function! s:T.get_cmd(tf) "{{{1

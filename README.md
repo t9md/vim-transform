@@ -17,7 +17,11 @@ You can transform shorthand syntax within buffer on the fly.
 You can write transformer whichever language you like.  
 This have great possibility to reduce typing!  
 
-![Movie](https://raw.githubusercontent.com/t9md/t9md/019b944b5b1152dbb97b92471b7ec596769c8319/img/transform.gif)
+* Auto generate Go's String() methods from const
+![Movie](https://raw.githubusercontent.com/t9md/t9md/465f597e88cdf977b415248942d62c2584dd2c5f/img/vim-transform/transform.gif)
+
+* Auto insert command result.
+![Movie](https://raw.githubusercontent.com/t9md/t9md/465f597e88cdf977b415248942d62c2584dd2c5f/img/vim-transform/transform-2.gif)
 
 # Requirement
 Vim 7.4+
