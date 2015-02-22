@@ -17,9 +17,9 @@ set cpo&vim
 command! -range -bar -nargs=* Transform call transform#start(<line1>, <line2>, <f-args>)
 
 " KeyMap:
-nnoremap <silent> <Plug>(transform) :Transform n<CR>
-xnoremap <silent> <Plug>(transform) :Transform v<CR>
-inoremap <silent> <Plug>(transform) <C-o>:Transform n<CR>
+nnoremap <silent> <Plug>(transform) :Transform<CR>
+xnoremap <silent> <Plug>(transform) :Transform<CR>
+inoremap <silent> <Plug>(transform) <C-o>:Transform<CR>
 
 " Finish:
 let &cpo = s:old_cpo
