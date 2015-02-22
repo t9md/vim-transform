@@ -279,7 +279,8 @@ Keep transformer script itself independent from editor, mean sharable between se
 * `  1%` good default config and tranformer set?
 * `  0%` Unite transformer?
 
-# Done
+# DONE
+* `100%` Pass list of command to `run()`,`get()`, and execute by choice.
 * `100%` command line arguments(or parameters) to transformer?
   => user's preference, shoud work.
 * `100%` support directly excutable transformer( except windows ).
