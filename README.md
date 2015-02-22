@@ -41,19 +41,14 @@ imap <M-t> <Plug>(transform)
 
 ## Customize
 
-You can configure handler function to choose appropriate transformer based on context.  
-`e` is environment variable, you can call `e.run(TRANSFORMER_NAME)`.  
-NOTE: `e.run()` never return, imediately finish after rewrite buffer.  
-NOTE: `e.get()` is return version of `e.run()`
-
-`g:transform` is Dictionary with `key=&filetype`, `value=Function`.  
-The magical `_` function is like `default_route` which always be called after &filetype specific function didn't invoke `run()`.  
-
-Your configuration will be merged into [default_conf](https://github.com/t9md/vim-transform/blob/master/autoload/transform/route.vim) by `extend(default_conf, user__conf)`
-
 ```vim
+" all configuration goes into this dictionary
 let g:transform = {}
+
+" disable default handler set
 let g:transform.options.enable_default_config = 0
+
+" specify where to find transformer script
 let g:transform.options.path = "/Users/t9md/my_transformer"
 
 function! g:transform._(e)
@@ -70,6 +65,23 @@ function! s:route.go(e) "{{{1
   endif
 endfunction
 ```
+As you see above, you can configure handler function to choose appropriate transformer based on context.  
+`e` is environment variable, you can use several methods `e` provides.
+
+* `e.run(cmd)`: take command or list of command, after execute command, immediately finish, never return.
+* `e.get(cmd)`: returnable version of `run()`.
+
+You can pass list of commands to `run()` or `get()` like following
+
+```vim
+call e.run([ {'hello': 'echo hello'}, { 'bye': 'echo bye'} ])
+```
+
+`g:transform` is Dictionary with `key=&filetype`, `value=Function`.  
+The magical `_` function is like `default_route` which always be called after &filetype specific function didn't invoke `run()`.  
+
+Your configuration will be merged into [default_conf](https://github.com/t9md/vim-transform/blob/master/autoload/transform/route.vim) by `extend(default_conf, user__conf)`
+
 ### Advanced example
 
 ```vim

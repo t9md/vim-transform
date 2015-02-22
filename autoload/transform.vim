@@ -105,10 +105,46 @@ function! s:T.find_transformer(filename) "{{{1
   throw "TRANSFORMER_NOT_FOUND"
 endfunction
 
+" Return command from list of command by let user choose one.
+"
+" IN:
+"   [ {'hello': 'echo hello'}, { 'bye': 'echo bye'} ]
+" OUT:
+"   user chose 1 => 'echo hello'
+"   user chose 2 => 'echo hello'
+function! s:T.select(cmds)
+  let cmds = a:cmds
+  let menu = ['Transform: ']
+  let num2cmd = {}
+
+  let i = 0
+  let desc_longest = 0
+  for d in cmds
+    if !s:Is_Dictionary(d)
+      continue
+    endif
+
+    let i += 1
+    let [desc, cmd] = items(d)[0]
+    let num2cmd[i] = cmd
+    let desc_longest = max([desc_longest, len(desc)])
+    let fmt =  "  %d: %-" . desc_longest . "s => '%s'"
+    call add(menu, printf(fmt, i, desc, cmd))
+    unlet! d
+  endfor
+
+  let R =  get(num2cmd, inputlist(menu), '')
+  if empty(R)
+    throw 'OUT_OF_RANGE'
+  endif
+  return R
+endfunction
+
 function! s:T.run(...) "{{{1
   " TF => transformer
   try
-    let [cmd; other] = a:000
+    let [_cmd; other] = a:000
+    let cmd = s:Is_String(_cmd) ? _cmd : self.select(_cmd)
 
     let [TF, TF_opt] = s:cmd_parse(cmd)
 

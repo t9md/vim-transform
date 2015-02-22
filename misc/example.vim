@@ -34,12 +34,18 @@ function! g:transform._(e)
     endif
   endif
 
-  " To demonstrate get()
-  if FILENAME ==# 'sample.md'
+  " Demo: get()
+  if FILENAME ==# 'demo.md'
     " run() never return, you can use get() to chain multiple transformer.
     " in this silly sample, supporse ~/testfile contains 'foo\nbar\n'.
     " final result will be `FOO`
     call e.get("cat ~/testfile").get("grep foo").run("tr '[:lower:]' '[:upper:]'")
+  endif
+
+  " Demo: run() with selectin
+  " You can pass list of command to run() to choose command interactively.
+  if FILENAME ==# 'demo.md'
+    call e.run([ {'hello': 'echo hello'}, { 'bye': 'echo bye'} ])
   endif
 
   if FILENAME =~# 'translate.md'
