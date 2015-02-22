@@ -164,7 +164,7 @@ endfunction
 function! s:T.start(...) "{{{1
   " TF => transformer
   let [line_s, line_e; other] = a:000
-  let mode = line_s !=# line_e ? 'v' : 'v'
+  let mode = line_s !=# line_e ? 'v' : 'n'
 
   let TF = len(other) ==# 1 ? other[0] : ''
   try
