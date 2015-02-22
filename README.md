@@ -57,7 +57,7 @@ let g:transform.options.path = "/Users/t9md/my_transformer"
 " This `e` is environment vim-transformer use.
 " You can call `run()` or `get()` method on `e` to execute transformer.
 
-" `_` is special handler called when other filetype specific handler did'nt match(=didn't call `run()`).
+" `_` is special handler called when other filetype specific handler didn't match(=didn't call `run()`).
 function! g:transform._(e)
   call a:e.run("_/stringfy_word.rb")
 endfunction
