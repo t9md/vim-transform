@@ -24,7 +24,7 @@ in Vim's buffer, input `env!!` as-is then trigger invoke `<Plug>(transform)`.
 ```sh
 env!!_<= YOUR_CURSOR_HERE and invoke Transformer
 ```
-Bang! you got environment json dumped as `pp()` in buffer.  
+Bang! you got environment json dumped by `pp()` to buffer.  
 The vim's function can't be serialized, so `env["get"]`, `env["new"]` etc are zeroed, you can simply ignore this.  
 Now you can start modifying handler.rb as you like, edit handler.rb and check how routing and transformer invoking like.  
 ```ruby
