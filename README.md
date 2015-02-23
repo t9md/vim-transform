@@ -236,7 +236,7 @@ example output of `environment`
 ## I don't want write any Vimscript, want to completely handle my faviorite language.
 
 OK, you don't like routing logic written in Vimscript.  
-If so, let Vim delegate all request to your favorite transformer.  
+If so, let Vim delegate all request to your favorite handler.  
 * in Vim side, all request is forwarded to handler.rb
 * handler.rb have responsible both request routing and response(=transformation).
 * `env` informatino is available as JSON object within external handler!
