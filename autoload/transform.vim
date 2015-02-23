@@ -11,7 +11,7 @@ let s:lang2cmd = {
       \ }
 
 " Utility function
-function! s:dictionary_exists(var) "{{{1
+function! s:exists_Dictionary(var) "{{{1
   return exists(a:var) && s:is_Dictionary(eval(a:var))
 endfunction
 
@@ -20,8 +20,8 @@ function! s:str_strip(s) "{{{1
   return substitute(a:s, '\v(^\s*)|(\s*$)', '', 'g')
 endfunction
 
-" dynamically define s:is_Number(v)  etc..
 function! s:define_type_checker() "{{{1
+  " dynamically define s:is_Number(v)  etc..
   let types = {
         \ "Number":     0,
         \ "String":     1,
@@ -39,6 +39,7 @@ function! s:define_type_checker() "{{{1
     execute s
   endfor
 endfunction
+"}}}
 call s:define_type_checker()
 
 function! s:cmd_parse(cmd) "{{{1
@@ -58,6 +59,7 @@ function! s:cmd_parse(cmd) "{{{1
   endif
   return [bin, opt]
 endfunction
+"}}}
 
 " Default options
 let s:options_default = {
@@ -71,12 +73,15 @@ let s:is_windows = has('win16') || has('win32') || has('win64') || has('win95')
 
 function! s:T.read_config() "{{{1
   let conf_user =
-        \ s:dictionary_exists('g:transform')
+        \ s:exists_Dictionary('g:transform')
         \ ? g:transform
         \ : {}
 
   let conf = {}
   call extend(conf, conf_user)
+  if !s:is_Dictionary(get(conf, 'options'))
+    let conf.options = {}
+  endif
   call extend(conf.options, s:options_default, 'keep')
 
   if conf.options.enable_default_config
@@ -109,14 +114,14 @@ function! s:T.find_transformer(filename) "{{{1
   throw "TRANSFORMER_NOT_FOUND"
 endfunction
 
-" Return command from list of command by let user choose one.
-"
-" IN:
-"   [ {'hello': 'echo hello'}, { 'bye': 'echo bye'} ]
-" OUT:
-"   user chose 1 => 'echo hello'
-"   user chose 2 => 'echo hello'
-function! s:T.select(cmds)
+function! s:T.select(cmds) "{{{1
+  " Return command from list of command by let user choose one.
+  "
+  " IN:
+  "   [ {'hello': 'echo hello'}, { 'bye': 'echo bye'} ]
+  " OUT:
+  "   user chose 1 => 'echo hello'
+  "   user chose 2 => 'echo hello'
   let cmds = a:cmds
   let menu = ['Transform: ']
   let num2cmd = {}
@@ -153,9 +158,9 @@ function! s:T.run(...) "{{{1
     let [TF, TF_opt] = s:cmd_parse(cmd)
 
     let TF = expand(TF)
-    let TF_with_slash = stridx(TF[1:],'/') !=# -1
+    let TF_include_slash = stridx(TF[1:],'/') !=# -1
     let TF_path =
-          \ (TF[0] ==# '/' || !TF_with_slash) ? TF : self.find_transformer(TF)
+          \ (TF[0] ==# '/' || !TF_include_slash) ? TF : self.find_transformer(TF)
 
     let cmd   = self.get_cmd(TF_path)
     let stdin = self.env.content.all
@@ -175,11 +180,10 @@ function! s:T.start(...) "{{{1
     let self.conf    = self.read_config()
 
     if !empty(TF)
-      " user specify transformer explicitly
+      " User explicitly specified transformer
       call self.run(TF)
       throw 'SUCCESS'
     else
-      " heuristic
       call self.handle()
     endif
   catch /^SUCCESS/
