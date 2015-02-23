@@ -75,7 +75,9 @@ function! s:T.read_config() "{{{1
         \ ? g:transform
         \ : {}
 
-  let conf = extend({ 'options': s:options_default }, conf_user)
+  let conf = {}
+  call extend(conf, conf_user)
+  call extend(conf.options, s:options_default, 'keep')
 
   if conf.options.enable_default_config
     call extend(conf,  transform#route#default(), 'keep')
