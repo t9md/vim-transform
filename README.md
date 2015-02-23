@@ -237,11 +237,29 @@ example output of `environment`
 
 OK, you don't like routing logic written in Vimscript.  
 If so, let Vim delegate all request to your favorite transformer.  
-
-Check example [ruby_handler](https://github.com/t9md/vim-transform/blob/master/misc/ruby_handler).
-
 * in Vim side, all request is forwarded to handler.rb
 * handler.rb have responsible both request routing and response(=transformation).
+* `env` informatino is available as JSON object within external handler!
+
+So you can write routing logic like below(authogh this is rough example handler, hope improve by your side).  
+```ruby
+Transformer.register do
+  if FILE_TYPE == 'go'
+    if $env['content']['line_s-1'] =~ /^import\s*\(/
+      get /./ do |req|
+        puts TF::Go::Import.run(req)
+      end
+    end
+
+    get /^const\s*\(.*\)$/m do |req|
+      puts TF::Go::ConstStringfy.run(req)
+    end
+  end
+end
+```
+
+Check example [ruby_handler](https://github.com/t9md/vim-transform/blob/master/misc/ruby_handler) for more detail.  
+
 
 # once Ideally => now MUST
 Keep transformer script itself independent from editor, mean sharable between several editors.

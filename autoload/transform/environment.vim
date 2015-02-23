@@ -11,13 +11,24 @@ function! s:Env.new(line_s, line_e, mode) "{{{1
   return extend(e, self)
 endfunction
 
+function! s:Env.toJSON() "{{{1
+  try
+    let json = webapi#json#encode(self)
+  catch /E117:/
+    throw 'toJSON require "mattn/webapi-vim"'
+  endtry
+  return json
+endfunction
+
 function! s:Env.run(...) "{{{1
-  call call(self.app.run, a:000, self.app)
+  let app = transform#_app()
+  call call(app.run, a:000, app)
   throw 'SUCCESS'
 endfunction
 
 function! s:Env.get(...) "{{{1
-  call call(self.app.run, a:000, self.app)
+  let app = transform#_app()
+  call call(app.run, a:000, app)
   return self
 endfunction
 
@@ -50,9 +61,15 @@ function! s:Env.set_content(line_s, line_e) "{{{1
 endfunction
 
 function! s:Env.set_buffer(line_s, line_e) "{{{1
+  let bufname = bufname('')
   let R = {
         \ "filetype": &filetype,
-        \ "filename": fnamemodify(bufname(bufnr('')), ':t'),
+        \ "filepath": fnamemodify(bufname, ':p'),
+        \ "filename": fnamemodify(bufname, ':t'),
+        \ "dirname":  fnamemodify(bufname, ':h'),
+        \ "ext":      fnamemodify(bufname, ':e'),
+        \ "cword":    expand('<cword>'),
+        \ "cWORD":    expand('<cWORD>'),
         \ "pos":      getpos('.'),
         \ "bufnr":    bufnr(''),
         \ "line_s":   a:line_s,

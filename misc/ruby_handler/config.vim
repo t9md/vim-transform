@@ -4,14 +4,11 @@ let g:transform.options.enable_default_config = 0
 let g:transform.options.path = "$HOME/transformer"
 
 function! g:transform._(e)
-  " To avoid mess in passing 'line_s-1' and 'line_e+1' as command line
-  " argments, we concatnate these with original input.
-
-  let stdin = [a:e.content['line_s-1'] ] + a:e.content.all + [a:e.content['line_e+1']]
-  call a:e.content.update(stdin)
-
-  let fn = a:e.buffer.filename
-  let ft = a:e.buffer.filetype
-  let cmd = printf( "%s %s %s", 'ruby_handler/handler.rb', fn, ft)
-  call a:e.run(cmd)
+  " To avoid mess in passing `env` as argment.
+  " We serialize env to JSON and pass as first line of STDIN.
+  " handler.rb should pop first line of STDIN and decode as JSON.
+  " rest of STDIN is original STDIN in handler.rb
+  let STDIN = [a:e.toJSON()] + a:e.content.all
+  call a:e.content.update(STDIN)
+  call a:e.run('ruby_handler/handler.rb')
 endfunction

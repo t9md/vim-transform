@@ -163,8 +163,8 @@ function! s:T.run(...) "{{{1
           \ (TF[0] ==# '/' || !TF_include_slash) ? TF : self.find_transformer(TF)
 
     let cmd   = self.get_cmd(TF_path)
-    let stdin = self.env.content.all
-    call self.env.content.update(split(system(cmd . TF_opt, stdin), '\n' ))
+    let STDIN = self.env.content.all
+    call self.env.content.update(split(system(cmd . TF_opt, STDIN), '\n' ))
   endtry
 endfunction
 
@@ -176,7 +176,6 @@ function! s:T.start(...) "{{{1
   let TF = len(other) ==# 1 ? other[0] : ''
   try
     let self.env     = transform#environment#new(line_s, line_e, mode)
-    let self.env.app = self
     let self.conf    = self.read_config()
 
     if !empty(TF)
@@ -225,6 +224,10 @@ endfunction
 
 function! transform#config() "{{{1
   return s:T.read_config()
+endfunction
+
+function! transform#_app() "{{{1
+  return s:T
 endfunction
 " }}}
 " vim: foldmethod=marker

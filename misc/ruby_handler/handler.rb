@@ -1,41 +1,47 @@
+# This is example, you need to change as you like.
+
+require 'json'
+require 'pp'
+
 require_relative './lib/transformer'
 require_relative './lib/transformer/base'
 require_relative './lib/transformer/go'
 
+# first line of STDIN is JSON string which inlucde `env` information.
 input = STDIN.read
-input = input.split("\n", -1)
-
-$env = {
-  'line_s-1' => input.shift,
-  'line_e+1' => input.pop,
-}
-input = input.join("\n")
+json, input = input.split("\n", 2)
+$env = json = JSON.parse(json)
 
 TF        = Transformer
-FILE_NAME = ARGV[0]
-FILE_TYPE = ARGV[1]
+FILE_NAME = $env['buffer']['filename']
+FILE_TYPE = $env['buffer']['filetype']
 
 TF.register do
   if FILE_TYPE == 'go'
-      if $env['line_s-1'] =~ /^import\s*\(/
-        get /./ do |req|
-          puts TF::Go::Import.run(req)
-        end
+    if $env['content']['line_s-1'] =~ /^import\s*\(/
+      get /./ do |req|
+        puts TF::Go::Import.run(req)
       end
+    end
 
-      get /^const\s*\(.*\)$/m do |req|
-        puts TF::Go::ConstStringfy.run(req)
-      end
+    get /^const\s*\(.*\)$/m do |req|
+      puts TF::Go::ConstStringfy.run(req)
+    end
+  end
+
+  ## if filename is `sandbox.rb` and line begin line is `env!!` only, dump $env to buffer
+  if FILE_NAME == "sandbox.rb" && $env['content']['len'] == 1
+    get /^env!!$/ do
+      pp $env
+    end
   end
 
   if FILE_NAME == "tryit.md"
     # Insert content of URL
-    get %r!^\s*http://.*$! do |req, m|
+    get %r!^\s*https?://.*$! do |req, m|
       puts req
-      system "curl #{req}"
+      system %!curl '#{req}'!
     end
-
-
 
     # Insert command output ( not necessarily transformed )
     # =====================================
@@ -71,11 +77,10 @@ TF.register do
     #
     # |!!tmux[0] hostname
     #
-    # get /!!tmux\[(\d+)\] (.*)$/ do |req, m|
-    #   cmd = %!tmux send-keys -t#{m[1]} "#{m[2]}" Enter!
-    #   system cmd
-    # end
-
+    get /!!tmux\[(\d+)\] (.*)$/ do |req, m|
+      cmd = %!tmux send-keys -t#{m[1]} "#{m[2]}" Enter!
+      system cmd
+    end
   end
 
   # stringfy
@@ -85,4 +90,3 @@ TF.register do
 end
 
 TF.start input
-
