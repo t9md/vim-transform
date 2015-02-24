@@ -163,7 +163,7 @@ function! s:T.run(...) "{{{1
 
     let STDIN = self.env.content.all
     let result = system(cmd . TF_arg, STDIN)
-    call self.env.content.update(split(result), '\n' ))
+    call self.env.content.update(split(result, '\n' ))
   endtry
 endfunction
 
@@ -203,19 +203,19 @@ function! s:T.start(...) "{{{1
   " Setup env and conf and start!
   let [line_s, line_e; rest] = a:000
   let mode = line_s !=# line_e ? 'v' : 'n'
-
-  let TF = len(rest) ==# 1 ? rest[0] : ''
+  let TF   = len(rest) ==# 1 ? rest[0] : ''
   try
-    let self.env     = transform#environment#new(line_s, line_e, mode)
-    let self.conf    = self.read_config()
+    let self.env  = transform#environment#new(line_s, line_e, mode)
+    let self.conf = self.read_config()
 
     if !empty(TF)
       " User explicitly specified transformer
       call self.run(TF)
       throw 'SUCCESS'
-    else
-      call self.handle()
     endif
+
+    call self.handle()
+
   catch /^SUCCESS/
     if !empty(self.env.content.all)
       call self.write()
