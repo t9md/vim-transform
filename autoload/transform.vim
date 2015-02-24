@@ -126,9 +126,9 @@ function! s:T.select(cmds) "{{{1
   let i = 0
   let desc_longest = 0
   for D in cmds
-    unlet! D
     if !s:is_Dictionary(D)
       continue
+      unlet! D
     endif
 
     let i += 1
@@ -137,6 +137,7 @@ function! s:T.select(cmds) "{{{1
     let desc_longest = max([desc_longest, len(desc)])
     let fmt =  "  %d: %-" . desc_longest . "s => '%s'"
     call add(menu, printf(fmt, i, desc, cmd))
+    unlet! D
   endfor
 
   let R =  get(num2cmd, inputlist(menu), '')
