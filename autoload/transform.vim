@@ -1,5 +1,5 @@
 " Table to determine runner from file extention.
-let s:lang2cmd = {
+let s:lang2run = {
       \ "rb":     "ruby",
       \ "py":     "python",
       \ "pl":     "perl",
@@ -10,7 +10,13 @@ let s:lang2cmd = {
       \ "lua":    "lua",
       \ }
 
-" Utility function
+let s:options_default = {
+      \ 'enable_default_config': 1,
+      \ 'path': '',
+      \ }
+
+" Utility:
+" ------------------------------------------------
 function! s:exists_Dictionary(var) "{{{1
   return exists(a:var) && s:is_Dictionary(eval(a:var))
 endfunction
@@ -41,6 +47,7 @@ function! s:define_type_checker() "{{{1
 endfunction
 "}}}
 call s:define_type_checker()
+unlet! s:define_type_checker
 
 function! s:cmd_parse(cmd) "{{{1
   " split `cmd` to [bin, option] like following
@@ -61,17 +68,13 @@ function! s:cmd_parse(cmd) "{{{1
 endfunction
 "}}}
 
-" Default options
-let s:options_default = {
-      \ 'enable_default_config': 1,
-      \ 'path': '',
-      \ }
-
 " Main:
+" ------------------------------------------------
 let s:T = {}
 let s:is_windows = has('win16') || has('win32') || has('win64') || has('win95')
 
 function! s:T.read_config() "{{{1
+  " Prepare all configuration used in vim-transformer.
   let conf_user =
         \ s:exists_Dictionary('g:transform')
         \ ? g:transform
@@ -91,6 +94,7 @@ function! s:T.read_config() "{{{1
 endfunction
 
 function! s:T.handle() "{{{1
+  " Call handler function based on &filetype.
   let handlers = [self.env.buffer.filetype, "_" ]
 
   for handler in handlers
@@ -103,15 +107,6 @@ function! s:T.handle() "{{{1
   endfor
 
   throw "NOTHING_TODO"
-endfunction
-
-function! s:T.find_transformer(filename) "{{{1
-  let path  = join([self.conf.options.path, self.env.path.dir_transformer], ',')
-  let found = split(globpath(path, a:filename), "\n")
-  if !empty(found)
-    return found[0]
-  endif
-  throw "TRANSFORMER_NOT_FOUND"
 endfunction
 
 function! s:T.select(cmds) "{{{1
@@ -150,30 +145,64 @@ function! s:T.select(cmds) "{{{1
 endfunction
 
 function! s:T.run(...) "{{{1
-  " TF => transformer
+  " Execute transformer
+  "  Selected area > STDIN > transformer > STDOUT > result
+  " TF = transformer
   try
     let [_cmd; other] = a:000
     let cmd = s:is_String(_cmd) ? _cmd : self.select(_cmd)
 
     let [TF, TF_opt] = s:cmd_parse(cmd)
 
-    let TF = expand(TF)
-    let TF_include_slash = stridx(TF[1:],'/') !=# -1
-    let TF_path =
-          \ (TF[0] ==# '/' || !TF_include_slash) ? TF : self.find_transformer(TF)
+    let TF_path = self.path_resolv(TF)
+    let cmd = executable(TF_path) && !s:is_windows
+          \ ? TF_path
+          \ : self.run_cmd(TF_path)
 
-    let cmd   = self.get_cmd(TF_path)
     let STDIN = self.env.content.all
     call self.env.content.update(split(system(cmd . TF_opt, STDIN), '\n' ))
   endtry
 endfunction
 
+function! s:T.run_cmd(tf) "{{{1
+  " Return command
+  "  'foo.rb' => 'ruby foo'
+  "  'bar.py' => 'python foo'
+  let TF = a:tf
+  let ext    = fnamemodify(TF, ":t:e")
+  let runner = get(s:lang2run, ext, '')
+
+  if  empty(runner)      | throw "CANT_DETERMINE_RUNNER"             | endif
+  if !executable(runner) | throw "RUNNER_NOT_EXECUTETABLE: " . runner | endif
+
+  return runner . " " . TF
+endfunction
+
+function! s:T.path_resolv(filename) "{{{1
+  " Resolv path of transformer
+  let TF = expand(a:filename)
+  let TF_include_slash = stridx(TF[1:],'/') !=# -1
+  if TF[0] ==# '/' || !TF_include_slash
+    " absolute path(begin with '/') or filename not inclulde '/'
+    "  ex) /bin/ls, script.rb
+    return TF
+  endif
+
+  " Search from user speficied directory and vim-transformer's directory.
+  let dirs  = join([self.conf.options.path, self.env.path.dir_transformer], ',')
+  let found = split(globpath(dirs, TF), "\n")
+  if !empty(found)
+    return found[0]
+  endif
+  throw "TRANSFORMER_NOT_FOUND"
+endfunction
+
 function! s:T.start(...) "{{{1
-  " TF => transformer
-  let [line_s, line_e; other] = a:000
+  " Setup env and conf and start!
+  let [line_s, line_e; rest] = a:000
   let mode = line_s !=# line_e ? 'v' : 'n'
 
-  let TF = len(other) ==# 1 ? other[0] : ''
+  let TF = len(rest) ==# 1 ? rest[0] : ''
   try
     let self.env     = transform#environment#new(line_s, line_e, mode)
     let self.conf    = self.read_config()
@@ -195,6 +224,7 @@ function! s:T.start(...) "{{{1
 endfunction
 
 function! s:T.write() "{{{1
+  " Replace Vim's buffer with transoformed content.
   if self.env.mode ==# 'v'
     normal! gv"_d
   else
@@ -202,19 +232,6 @@ function! s:T.write() "{{{1
   endif
   call append(self.env.buffer['line_s-1'], self.env.content.all)
   call setpos('.', self.env.buffer.pos)
-endfunction
-
-function! s:T.get_cmd(tf) "{{{1
-  if !s:is_windows && executable(a:tf)
-    return a:tf
-  endif
-  let ext = fnamemodify(a:tf, ":t:e")
-  let rc  = get(s:lang2cmd, ext, '')
-
-  if  empty(rc)      | throw "CANT_DETERMINE_RUNNER"         | endif
-  if !executable(rc) | throw "RUNNER_NOT_EXCUTETABLE: " . rc | endif
-
-  return rc . ' ' . a:tf
 endfunction
 
 " Public API
@@ -227,6 +244,7 @@ function! transform#config() "{{{1
 endfunction
 
 function! transform#_app() "{{{1
+  " Internally use don't call this.
   return s:T
 endfunction
 " }}}
