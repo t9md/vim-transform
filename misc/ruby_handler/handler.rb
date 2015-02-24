@@ -8,9 +8,9 @@ require_relative './lib/transformer/base'
 require_relative './lib/transformer/go'
 
 # first line of STDIN is JSON string which inlucde `env` information.
-input = STDIN.read
+input       = STDIN.read
 json, input = input.split("\n", 2)
-$env = json = JSON.parse(json)
+$env        = JSON.parse(json)
 
 TF        = Transformer
 FILE_NAME = $env['buffer']['filename']
