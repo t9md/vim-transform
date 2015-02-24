@@ -29,7 +29,7 @@ function! s:T.config() "{{{1
 
   unlet! g:transform
   let g:transform = {}
-  let g:transform.options = {}
+  let g:transform.options = 1
   call s:report('g:transform.options is not dictionary', transform#config())
 endfunction
 

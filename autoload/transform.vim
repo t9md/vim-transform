@@ -1,5 +1,5 @@
 " Table to determine runner from file extention.
-let s:lang2run = {
+let s:ext2run = {
       \ "rb":     "ruby",
       \ "py":     "python",
       \ "pl":     "perl",
@@ -50,7 +50,7 @@ call s:define_type_checker()
 unlet! s:define_type_checker
 
 function! s:cmd_parse(cmd) "{{{1
-  " split `cmd` to [bin, option] like following
+  " split `cmd` to [bin, arg] like following
   " Example:
   "   ' /bin/ls -l '    => ['/bin/ls', ' -l']
   "   'grep -v "^\s*$"' => ['grep', ' -v "^\s*$"']
@@ -59,12 +59,12 @@ function! s:cmd_parse(cmd) "{{{1
   let i = stridx(cmd, ' ')
   if i ==# -1
     let bin = cmd
-    let opt = ''
+    let arg = ''
   else
     let bin =  strpart(cmd, 0, i)
-    let opt =  strpart(cmd, i)
+    let arg =  strpart(cmd, i)
   endif
-  return [bin, opt]
+  return [bin, arg]
 endfunction
 "}}}
 
@@ -115,8 +115,10 @@ function! s:T.select(cmds) "{{{1
   " IN:
   "   [ {'hello': 'echo hello'}, { 'bye': 'echo bye'} ]
   " OUT:
-  "   user chose 1 => 'echo hello'
-  "   user chose 2 => 'echo hello'
+  "   chose 1 => 'echo hello'
+  "   chose 2 => 'echo bye'
+  "   chose 0 => throw 'OUT_OF_RANGE'
+  "   chose 9 => throw 'OUT_OF_RANGE'
   let cmds = a:cmds
   let menu = ['Transform: ']
   let num2cmd = {}
@@ -152,7 +154,7 @@ function! s:T.run(...) "{{{1
     let [_cmd; other] = a:000
     let cmd = s:is_String(_cmd) ? _cmd : self.select(_cmd)
 
-    let [TF, TF_opt] = s:cmd_parse(cmd)
+    let [TF, TF_arg] = s:cmd_parse(cmd)
 
     let TF_path = self.path_resolv(TF)
     let cmd = executable(TF_path) && !s:is_windows
@@ -160,7 +162,8 @@ function! s:T.run(...) "{{{1
           \ : self.run_cmd(TF_path)
 
     let STDIN = self.env.content.all
-    call self.env.content.update(split(system(cmd . TF_opt, STDIN), '\n' ))
+    let result = system(cmd . TF_arg, STDIN)
+    call self.env.content.update(split(result), '\n' ))
   endtry
 endfunction
 
@@ -170,12 +173,11 @@ function! s:T.run_cmd(tf) "{{{1
   "  'bar.py' => 'python foo'
   let TF = a:tf
   let ext    = fnamemodify(TF, ":t:e")
-  let runner = get(s:lang2run, ext, '')
+  let run = get(s:ext2run, ext, '')
 
-  if  empty(runner)      | throw "CANT_DETERMINE_RUNNER"             | endif
-  if !executable(runner) | throw "RUNNER_NOT_EXECUTETABLE: " . runner | endif
-
-  return runner . " " . TF
+  if  empty(run)      | throw "CANT_DETERMINE_RUNNER"           | endif
+  if !executable(run) | throw "RUNNER_NOT_EXECUTETABLE: " . run | endif
+  return run . " " . TF
 endfunction
 
 function! s:T.path_resolv(filename) "{{{1
