@@ -236,7 +236,7 @@ function! s:T.write() "{{{1
   call setpos('.', self.env.buffer.pos)
 endfunction
 
-" Public API
+" Public API:
 function! transform#start(...) "{{{1
   call call(s:T.start, a:000, s:T)
 endfunction
