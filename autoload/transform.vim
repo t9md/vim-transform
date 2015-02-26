@@ -227,7 +227,7 @@ function! s:T.start(...) "{{{1
 endfunction
 
 function! s:T.write() "{{{1
-  " Replace Vim's buffer with transoformed content.
+  " Replace Vim's buffer with transformed content.
   if self.env.mode ==# 'v'
     normal! gv"_d
   else
