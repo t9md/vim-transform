@@ -170,8 +170,8 @@ endfunction
 
 function! s:T.run_cmd(tf) "{{{1
   " Return command
-  "  'foo.rb' => 'ruby foo'
-  "  'bar.py' => 'python foo'
+  "  'foo.rb' => 'ruby foo.rb'
+  "  'bar.py' => 'python bar.py'
   let TF = a:tf
   let ext    = fnamemodify(TF, ":t:e")
   let run = get(s:ext2run, ext, '')
