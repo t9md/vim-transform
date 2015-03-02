@@ -138,7 +138,7 @@ NOTE: As explained in C. you need '/' in flie name.
 " filename include '/' try search from transformer dir
 call e.run("go/const_stringfy.rb")
 
-" since filename not include '/' not trying to search from tranformer directory.
+" since filename not include '/' not trying to search from from $PATH.
 call e.run("const_stringfy.rb")
 ```
 
@@ -268,6 +268,7 @@ Keep transformer script itself independent from editor, mean sharable between se
 * `  0%` currently input is always treated as linewise, support charwise to transform partial area within single line
 * `  1%` good default config and tranformer set?
 * `  0%` Unite transformer?
+* `  0%` inlucde standard Ruby/CoffeeScript/Go/Lua/Python handler. and enable user choose favorite handler from configuration.
 
 # DONE
 * `100%` Pass list of command to `run()`,`get()`, and execute by choice.

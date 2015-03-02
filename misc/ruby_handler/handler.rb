@@ -29,8 +29,8 @@ TF.register do
     end
   end
 
-  ## if filename is `sandbox.rb` and line begin line is `env!!` only, dump $env to buffer
-  if FILE_NAME == "sandbox.rb" && $env['content']['len'] == 1
+  ## if filename is `sandbox.json` and line begin line is `env!!` only, dump $env to buffer
+  if FILE_NAME == "sandbox.json" && $env['content']['len'] == 1
     get /^env!!$/ do
       pp $env
     end

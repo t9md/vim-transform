@@ -13,7 +13,8 @@ endfunction
 
 function! s:Env.toJSON() "{{{1
   try
-    let json = webapi#json#encode(self)
+    let env = filter(deepcopy(self), 'type(self[v:key]) isnot 2')
+    let json = webapi#json#encode(env)
   catch /E117:/
     throw 'toJSON require "mattn/webapi-vim"'
   endtry
@@ -80,6 +81,7 @@ function! s:Env.set_buffer(line_s, line_e) "{{{1
   return R
 endfunction
 
+" API:
 function! transform#environment#new(...) "{{{1
   return call(s:Env.new, a:000, s:Env)
 endfunction

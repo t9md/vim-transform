@@ -16,44 +16,23 @@ In this example handler.rb.
 You can check this `env` variable like following.  
 
 ```sh
-touch sandbox.rb
-vim sandbox.rb
+touch sandbox.json
+vim sandbox.json
 ```
 in Vim's buffer, input `env!!` as-is then trigger invoke `<Plug>(transform)`.  
 
 ```sh
 env!!_<= YOUR_CURSOR_HERE and invoke Transformer
 ```
-Bang! you got environment json dumped by `pp()` to buffer.  
-The vim's function can't be serialized, so `env["get"]`, `env["new"]` etc are zeroed, you can simply ignore this.  
+Bang! You got environment json dumped by ruby's `pp()` to buffer.  
 Now you can start modifying handler.rb as you like, edit handler.rb and check how routing and transformer invoking like.  
-```ruby
-{"get"=>0,
- "path"=>
-  {"dir_base"=>"/Users/tmaeda/.vim/bundle/vim-transform/autoload/transform",
+
+```json
+{"path"=>
+  {"dir_base"=>"/Users/t9md/.vim/bundle/vim-transform/autoload/transform",
    "dir_transformer"=>
-    "/Users/tmaeda/.vim/bundle/vim-transform/autoload/transform/transformer"},
- "new"=>0,
- "run"=>0,
+    "/Users/t9md/.vim/bundle/vim-transform/autoload/transform/transformer"},
  "mode"=>"n",
- "set_content"=>0,
- "set_buffer"=>0,
- "set_path"=>0,
- "toJSON"=>0,
- "buffer"=>
-  {"line_s-1"=>0,
-   "cWORD"=>"env!!",
-   "line_e+1"=>2,
-   "cword"=>"env",
-   "filepath"=>"/Users/tmaeda/sandbox.rb",
-   "line_s"=>1,
-   "bufnr"=>1,
-   "dirname"=>"/Users/tmaeda",
-   "ext"=>"rb",
-   "filetype"=>"ruby",
-   "line_e"=>1,
-   "pos"=>[0, 1, 1, 0],
-   "filename"=>"sandbox.rb"},
  "content"=>
   {"line_e+1"=>"",
    "all"=>["env!!"],
@@ -61,6 +40,19 @@ Now you can start modifying handler.rb as you like, edit handler.rb and check ho
    "line_s"=>"env!!",
    "line_s-1"=>"",
    "line_e"=>"env!!",
-   "update"=>0}}
+   "update"=>0},
+ "buffer"=>
+  {"line_e+1"=>2,
+   "bufnr"=>18,
+   "pos"=>[0, 1, 5, 0],
+   "cWORD"=>"env!!",
+   "filepath"=>"/Users/t9md/sandbox.json",
+   "line_s"=>1,
+   "line_s-1"=>0,
+   "ext"=>"json",
+   "dirname"=>".",
+   "line_e"=>1,
+   "cword"=>"!!",
+   "filetype"=>"json",
+   "filename"=>"sandbox.json"}}
 ```
-
